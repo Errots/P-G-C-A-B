@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.CubicCurve?>
+
+
+<fx:root stylesheets="@Aplicacion.css" type="Pane" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <CubicCurve fx:id="node_link" controlX1="62.88309097290039" controlX2="177.37135314941406" controlY1="59.132484436035156" controlY2="68.56109619140625" endX="229.79290771484375" endY="59.132484436035156" fill="#1f93ff00" layoutX="-28.0" layoutY="-20.0" startX="50.0" startY="115.05939483642578" stroke="BLACK" />
+   </children>
+</fx:root>
