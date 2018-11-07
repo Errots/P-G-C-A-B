@@ -6,18 +6,28 @@
 package Display;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.UUID;
+
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.shape.Circle;
+
 
 
 /**
@@ -26,28 +36,28 @@ import javafx.scene.layout.AnchorPane;
  */
 public class IconoMoviblePrueba extends AnchorPane {
     
-    @FXML AnchorPane root_pane;
+    @FXML private AnchorPane root_pane;
+    @FXML private AnchorPane left_link_handle;
+    @FXML private AnchorPane right_link_handle;
+    @FXML private Label title_bar;
+    @FXML private Label close_button;
+    
+    private LinkNodo mDragLink = null;
+    private AnchorPane right_pane = null;
 
     private EventHandler <MouseEvent> mLinkHandleDragDetected;
-		private EventHandler <DragEvent> mLinkHandleDragDropped;
-		private EventHandler <DragEvent> mContextLinkDragOver;
-		private EventHandler <DragEvent> mContextLinkDragDropped;
-		
-		private EventHandler <DragEvent> mContextDragOver;
-		private EventHandler <DragEvent> mContextDragDropped;
-                
-                private LinkNodo mDragLink = null;
-		private AnchorPane right_pane = null;
+    private EventHandler <DragEvent> mLinkHandleDragDropped;
+    private EventHandler <DragEvent> mContextLinkDragOver;  
+    private EventHandler <DragEvent> mContextLinkDragDropped;		
+    private EventHandler <DragEvent> mContextDragOver;
+    private EventHandler <DragEvent> mContextDragDropped;                                
 
-		private final List <String> mLinkIds = new ArrayList <String> ();
+    private final List <String> mLinkIds = new ArrayList <String> ();
 
         
     private TipoItemPrueba mType = null;
     
     private Point2D mDragOffset = new Point2D(0.0, 0.0);
-        
-    @FXML private Label title_bar;
-    @FXML private Label close_button;
         
     private final IconoMoviblePrueba self;
     
@@ -67,10 +77,40 @@ public IconoMoviblePrueba() {
     } catch (IOException exception) {
     throw new RuntimeException(exception);
     }
+    //provide a universally unique identifier for this object
+    setId(UUID.randomUUID().toString());  
 }
     
 @FXML
-private void initialize() {buildNodeDragHandlers();}
+private void initialize() 
+{
+    buildNodeDragHandlers();
+	buildLinkDragHandlers();
+						
+	left_link_handle.setOnDragDetected(mLinkHandleDragDetected);
+	right_link_handle.setOnDragDetected(mLinkHandleDragDetected);
+
+	left_link_handle.setOnDragDropped(mLinkHandleDragDropped);
+	right_link_handle.setOnDragDropped(mLinkHandleDragDropped);
+
+	mDragLink = new LinkNodo();
+	mDragLink.setVisible(false);
+			
+	parentProperty().addListener(new ChangeListener() {
+
+	@Override
+	public void changed(ObservableValue observable,
+	Object oldValue, Object newValue) 
+        {
+	right_pane = (AnchorPane) getParent();				
+	}
+				
+});
+}
+
+public void registerLink(String linkId) {
+    mLinkIds.add(linkId);
+}
 
 public void relocateToPoint (Point2D p) {
 
@@ -82,6 +122,17 @@ public void relocateToPoint (Point2D p) {
         (int) (localCoords.getX() - mDragOffset.getX()),
         (int) (localCoords.getY() - mDragOffset.getY())
     );
+    mDragLink = new LinkNodo();
+    mDragLink.setVisible(false);
+            
+    parentProperty().addListener(new ChangeListener() {
+
+    @Override
+    public void changed(ObservableValue observable,
+        Object oldValue, Object newValue) {
+            right_pane = (AnchorPane) getParent();
+        }
+});
 }
 
 public TipoItemPrueba getType() { return mType;}
@@ -130,70 +181,88 @@ public void buildNodeDragHandlers() {
 
     mContextDragOver = new EventHandler <DragEvent>() {
 
-		//dragover to handle node dragging in the right pane view
-		@Override
-		public void handle(DragEvent event) {		
+	//dragover to handle node dragging in the right pane view
+	@Override
+	public void handle(DragEvent event) {		
 			
-		event.acceptTransferModes(TransferMode.ANY);				
-		relocateToPoint(new Point2D( event.getSceneX(), event.getSceneY()));
-
-		event.consume();
-		}
-		};
+	event.acceptTransferModes(TransferMode.ANY);				
+	relocateToPoint(new Point2D( event.getSceneX(), event.getSceneY()));
+	event.consume();
+	}
+	};
 			
-		//dragdrop for node dragging
-		mContextDragDropped = new EventHandler <DragEvent> () {
-		
-		@Override
-		public void handle(DragEvent event) {
+	//dragdrop for node dragging
+	mContextDragDropped = new EventHandler <DragEvent> () {
+	
+	@Override
+	public void handle(DragEvent event) {
 				
-		getParent().setOnDragOver(null);
-		getParent().setOnDragDropped(null);
+	getParent().setOnDragOver(null);
+	getParent().setOnDragDropped(null);
 					
-		event.setDropCompleted(true);
+	event.setDropCompleted(true);
 					
-		event.consume();
-		}
-		};
-		//close button click
-		close_button.setOnMouseClicked( new EventHandler <MouseEvent> () {
+	event.consume();
+	}
+	};
+	//close button click    
+    close_button.setOnMouseClicked( new EventHandler <MouseEvent> () {
 
-		@Override
-		public void handle(MouseEvent event) {
-		AnchorPane parent  = (AnchorPane) self.getParent();
-		parent.getChildren().remove(self);
-		}
-				
-		});
+    @Override
+     public void handle(MouseEvent event) {
+     AnchorPane parent  = (AnchorPane) self.getParent();
+     parent.getChildren().remove(self);
+
+    
+      for (ListIterator  iterId = mLinkIds.listIterator(); 
+            iterId.hasNext();) {
+                        
+        String id = (String) iterId.next();
+
+        for (ListIterator  iterNode = parent.getChildren().listIterator();
+        iterNode.hasNext();) {
+            
+        Node node = (Node) iterNode.next();
+                            
+        if (node.getId() == null)
+            continue;
+                        
+        if (node.getId().equals(id))
+            iterNode.remove();
+        }
+        iterId.remove();
+    }
+    }
+    }); 
 			
-		//drag detection for node dragging
-		title_bar.setOnDragDetected ( new EventHandler <MouseEvent> () {
+	//drag detection for node dragging
+	title_bar.setOnDragDetected ( new EventHandler <MouseEvent> () {
 
-		@Override
-		public void handle(MouseEvent event) {
+	@Override
+	public void handle(MouseEvent event) {
 				
-		getParent().setOnDragOver(null);
-		getParent().setOnDragDropped(null);
+	getParent().setOnDragOver(null);
+	getParent().setOnDragDropped(null);
 
-		getParent().setOnDragOver (mContextDragOver);
-		getParent().setOnDragDropped (mContextDragDropped);
+	getParent().setOnDragOver (mContextDragOver);
+	getParent().setOnDragDropped (mContextDragDropped);
 
-	         //begin drag ops
-	        mDragOffset = new Point2D(event.getX(), event.getY());
+	//begin drag ops
+        mDragOffset = new Point2D(event.getX(), event.getY());
 	                
-	        relocateToPoint(
-	        new Point2D(event.getSceneX(), event.getSceneY())
-	        );
+	relocateToPoint(
+	new Point2D(event.getSceneX(), event.getSceneY())
+	);
 	                
-	        ClipboardContent content = new ClipboardContent();
-		Contenedor container = new Contenedor();
+	ClipboardContent content = new ClipboardContent();
+	Contenedor container = new Contenedor();
 					
-		container.addData ("type", mType.toString());
-		content.put(Contenedor.AddNode, container);
+	container.addData ("type", mType.toString());
+	content.put(Contenedor.AddNode, container);
 					
-	   startDragAndDrop (TransferMode.ANY).setContent(content);                
+	startDragAndDrop (TransferMode.ANY).setContent(content);                
 	                
-	   event.consume();					
+	event.consume();					
 	}
 				
 	});
@@ -201,115 +270,110 @@ public void buildNodeDragHandlers() {
 } 
 private void buildLinkDragHandlers() {
 			
-			mLinkHandleDragDetected = new EventHandler <MouseEvent> () {
+mLinkHandleDragDetected = new EventHandler <MouseEvent> () {
 
-				@Override
-				public void handle(MouseEvent event) {
-					
-					getParent().setOnDragOver(null);
-					getParent().setOnDragDropped(null);
-					
-					getParent().setOnDragOver(mContextLinkDragOver);
-					getParent().setOnDragDropped(mContextLinkDragDropped);
-					
-					//Set up user-draggable link
-					right_pane.getChildren().add(0,mDragLink);					
-					
-					mDragLink.setVisible(false);
+    @Override
+    public void handle(MouseEvent event) {
+                    
+    getParent().setOnDragOver(null);
+    getParent().setOnDragDropped(null);
+                    
+    getParent().setOnDragOver(mContextLinkDragOver);
+    getParent().setOnDragDropped(mContextLinkDragDropped);
+                    
+    //Set up user-draggable link
+    right_pane.getChildren().add(0,mDragLink);                  
+                    
+    mDragLink.setVisible(false);
 
-					Point2D p = new Point2D(
-							getLayoutX() + (getWidth() / 2.0),
-							getLayoutY() + (getHeight() / 2.0)
-							);
+    Point2D p = new Point2D(
+    getLayoutX() + (getWidth() / 2.0),
+    getLayoutY() + (getHeight() / 2.0)
+    );
 
-					mDragLink.setStart(p);					
-					
-					//Drag content code
-	                ClipboardContent content = new ClipboardContent();
-	                Contenedor container = new Contenedor ();
-	                
-	                //pass the UUID of the source node for later lookup
-	                container.addData("source", getId());
+    mDragLink.setStart(p);                  
+                    
+    //Drag content code
+    ClipboardContent content = new ClipboardContent();
+    Contenedor container = new Contenedor ();
+                    
+    container.addData("source", getId());
+    content.put(Contenedor.AddLink, container);
+                
+    startDragAndDrop (TransferMode.ANY).setContent(content);    
 
-	                content.put(Contenedor.AddLink, container);
-					
-					startDragAndDrop (TransferMode.ANY).setContent(content);	
+    event.consume();
+    }
+};
 
-					event.consume();
-				}
-			};
+mLinkHandleDragDropped = new EventHandler <DragEvent> () {
 
-			mLinkHandleDragDropped = new EventHandler <DragEvent> () {
+	@Override
+	public void handle(DragEvent event) {
 
-				@Override
-				public void handle(DragEvent event) {
-
-					getParent().setOnDragOver(null);
-					getParent().setOnDragDropped(null);
+	getParent().setOnDragOver(null);
+	getParent().setOnDragDropped(null);
 										
-					//get the drag data.  If it's null, abort.  
-					//This isn't the drag event we're looking for.
-					Contenedor container = 
-							(Contenedor) event.getDragboard().getContent(Contenedor.AddLink);
+	//get the drag data.  If it's null, abort.  
+	//This isn't the drag event we're looking for.
+	Contenedor container = (Contenedor) event.getDragboard().getContent(Contenedor.AddLink);
 								
-					if (container == null)
-						return;
+	if (container == null)return;
 
-					//hide the draggable NodeLink and remove it from the right-hand AnchorPane's children
-					mDragLink.setVisible(false);
-					right_pane.getChildren().remove(0);
+	//hide the draggable NodeLink and remove it from the right-hand AnchorPane's children
+	mDragLink.setVisible(false);
+	right_pane.getChildren().remove(0);
 					
-					AnchorPane link_handle = (AnchorPane) event.getSource();
+	AnchorPane link_handle = (AnchorPane) event.getSource();
 					
-					ClipboardContent content = new ClipboardContent();
+	ClipboardContent content = new ClipboardContent();
 					
-					//pass the UUID of the target node for later lookup
-					container.addData("target", getId());
+	//pass the UUID of the target node for later lookup
+	container.addData("target", getId());
 					
-					content.put(Contenedor.AddLink, container);
+	content.put(Contenedor.AddLink, container);
 					
-					event.getDragboard().setContent(content);
-					event.setDropCompleted(true);
-					event.consume();				
-				}
-			};
+	event.getDragboard().setContent(content);
+	event.setDropCompleted(true);
+	event.consume();				
+	}
+	};
 
-			mContextLinkDragOver = new EventHandler <DragEvent> () {
+	mContextLinkDragOver = new EventHandler <DragEvent> () {
 
-				@Override
-				public void handle(DragEvent event) {
-					event.acceptTransferModes(TransferMode.ANY);
-					
-					//Relocate end of user-draggable link
-					if (!mDragLink.isVisible())
-						mDragLink.setVisible(true);
-					
-					mDragLink.setEnd(new Point2D(event.getX(), event.getY()));
-					
-					event.consume();
-					
-				}
-			};
+	@Override
+        public void handle(DragEvent event) {
+        event.acceptTransferModes(TransferMode.ANY);
+                    
+        //Relocate user-draggable link
+        if (!mDragLink.isVisible()) mDragLink.setVisible(true);
+                    
+        mDragLink.setEnd(new Point2D(event.getX(), event.getY()));
 
-			//drop event for link creation
-			mContextLinkDragDropped = new EventHandler <DragEvent> () {
-
-				@Override
-				public void handle(DragEvent event) {
-					System.out.println("context link drag dropped");
+        event.consume();
 					
-					getParent().setOnDragOver(null);
-					getParent().setOnDragDropped(null);
+	}
+	};
 
-					//hide the draggable NodeLink and remove it from the right-hand AnchorPane's children
-					mDragLink.setVisible(false);
-					right_pane.getChildren().remove(0);
+	//drop event for link creation
+	mContextLinkDragDropped = new EventHandler <DragEvent> () {
+
+	@Override
+	public void handle(DragEvent event) {
+	System.out.println("context link drag dropped");
 					
-					event.setDropCompleted(true);
-					event.consume();
-				}
+	getParent().setOnDragOver(null);
+	getParent().setOnDragDropped(null);
+
+	//hide the draggable NodeLink and remove it from the right-hand AnchorPane's children
+	mDragLink.setVisible(false);
+	right_pane.getChildren().remove(0);
+					
+	event.setDropCompleted(true);
+	event.consume();
+	}
 				
-			};
+	};
 			
-		}
+}
 }

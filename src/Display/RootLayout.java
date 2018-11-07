@@ -11,6 +11,7 @@ import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
@@ -193,9 +194,45 @@ public class RootLayout extends AnchorPane {
                 );
 		}
             }
-            event.consume();
-            }
-	});
-    }
+                //AddLink drag operation
+    container = (Contenedor) event.getDragboard().getContent(Contenedor.AddLink);
+                
+    if (container != null) {
+                    
+    //bind the ends of our link to the nodes whose id's are stored in the drag container
+    String sourceId = container.getValue("source");
+    String targetId = container.getValue("target");
 
+    if (sourceId != null && targetId != null) {
+                        
+        //System.out.println(container.getData());
+        LinkNodo link = new LinkNodo();
+                        
+        //add our link at the top of the rendering order so it's rendered first
+        right_pane.getChildren().add(0,link);
+                        
+        IconoMoviblePrueba source = null;
+        IconoMoviblePrueba target = null;
+                        
+        for (Node n: right_pane.getChildren()) {
+                            
+            if (n.getId() == null)
+                continue;
+                            
+        if (n.getId().equals(sourceId))
+            source = (IconoMoviblePrueba) n;
+                        
+        if (n.getId().equals(targetId))
+            target = (IconoMoviblePrueba) n;
+                            
+        }
+                        
+        if (source != null && target != null)
+        link.bindEnds(source, target);
+    }
+    }
+            event.consume();
+        }   
+    });
+    }
 }
