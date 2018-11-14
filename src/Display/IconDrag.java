@@ -126,22 +126,14 @@ public void relocateToPoint (Point2D p) {
             if(nodeIn instanceof HBox){
                 for(Node node:((HBox)nodeIn).getChildren()){
                     if(node instanceof Circle){
-                        TargetCircle = (Circle) node;
+                        node.l;
                     }
                 }
             }
         }
     }
     
-    TargetCircle.relocate (
-        (int) (localCoords.getX() - mDragOffset.getX()),
-        (int) (localCoords.getY() - mDragOffset.getY())
-    );
     
-    TargetCircle.relocate (
-        (int) (localCoords.getX() - mDragOffset.getX()),
-        (int) (localCoords.getY() - mDragOffset.getY())
-    );
     
     mDragLink = new LinkNodo();
     mDragLink.setVisible(false);
