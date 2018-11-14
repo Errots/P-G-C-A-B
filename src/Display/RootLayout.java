@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Display;
 
 import java.io.IOException;
@@ -32,7 +27,7 @@ public class RootLayout extends AnchorPane {
     @FXML AnchorPane right_pane;
     @FXML VBox left_pane;
 
-    private ItemPrueba mDragOverIcon = null;
+    private Iconos mDragOverIcon = null;
     private EventHandler mIconDragOverRoot=null;
     private EventHandler mIconDragDropped=null;
     private EventHandler mIconDragOverRightPane=null;
@@ -60,26 +55,26 @@ public class RootLayout extends AnchorPane {
     // Agrega un icono que sera usado para el proceso drag and drop
     // el icono es agreado como hijo de root AnchorPane
     // para que pueda se visible en los dos lados
-    mDragOverIcon = new ItemPrueba();
+    mDragOverIcon = new Iconos();
     
     mDragOverIcon.setVisible(false);
     mDragOverIcon.setOpacity(0.65);
     getChildren().add(mDragOverIcon);
     
     // Llenar toda la barra izquierda con iconos para pruebas
-    for (int i = 0; i<7;i++)
+    for (int i = 0; i<TiposdeIconos.values().length;i++)
     {
-        ItemPrueba icn = new ItemPrueba();
+        Iconos icn = new Iconos();
         
         addDragDetection(icn);
         
-        icn.setType(TipoItemPrueba.values()[i]);
+        icn.setType(TiposdeIconos.values()[i]);
         left_pane.getChildren().add(icn);
     }
     
     }
 
-    private void addDragDetection(ItemPrueba dragIcon) {
+    private void addDragDetection(Iconos dragIcon) {
 		
        dragIcon.setOnDragDetected (new EventHandler <MouseEvent> () {
 
@@ -92,7 +87,7 @@ public class RootLayout extends AnchorPane {
             right_pane.setOnDragDropped(mIconDragDropped);
         
             // get a reference to the clicked DragIcon object
-            ItemPrueba icn = (ItemPrueba) event.getSource();
+            Iconos icn = (Iconos) event.getSource();
 
              //begin drag ops
             mDragOverIcon.setType(icn.getType());
@@ -151,11 +146,9 @@ public class RootLayout extends AnchorPane {
     @Override
     public void handle(DragEvent event) {
 
-        Contenedor container =
-            (Contenedor) event.getDragboard().getContent(Contenedor.AddNode);
+        Contenedor container = (Contenedor) event.getDragboard().getContent(Contenedor.AddNode);
 
-        container.addData("scene_coords",
-            new Point2D(event.getSceneX(), event.getSceneY()));
+        container.addData("scene_coords",new Point2D(event.getSceneX(), event.getSceneY()));
 
         ClipboardContent content = new ClipboardContent();
         content.put(Contenedor.AddNode, container);
@@ -182,9 +175,9 @@ public class RootLayout extends AnchorPane {
 		if (container != null) {
             if (container.getValue("scene_coords") != null) {
 
-            IconoMoviblePrueba node = new IconoMoviblePrueba();
+            IconDrag node = new IconDrag();
 
-                node.setType(TipoItemPrueba.valueOf(container.getValue("type")));
+                node.setType(TiposdeIconos.valueOf(container.getValue("type")));
                 right_pane.getChildren().add(node);
 
                 Point2D cursorPoint = container.getValue("scene_coords");
@@ -211,8 +204,8 @@ public class RootLayout extends AnchorPane {
         //add our link at the top of the rendering order so it's rendered first
         right_pane.getChildren().add(0,link);
                         
-        IconoMoviblePrueba source = null;
-        IconoMoviblePrueba target = null;
+        IconDrag source = null;
+        IconDrag target = null;
                         
         for (Node n: right_pane.getChildren()) {
                             
@@ -220,10 +213,10 @@ public class RootLayout extends AnchorPane {
                 continue;
                             
         if (n.getId().equals(sourceId))
-            source = (IconoMoviblePrueba) n;
+            source = (IconDrag) n;
                         
         if (n.getId().equals(targetId))
-            target = (IconoMoviblePrueba) n;
+            target = (IconDrag) n;
                             
         }
                         

@@ -19,14 +19,14 @@ import javafx.util.Pair;
 public class Contenedor implements Serializable {
     
     public static final DataFormat DragNode = 
-    new DataFormat("Display.IconoMoviblePrueba.drag");
+    new DataFormat("Display.IconDrag.drag");
     
     public static final DataFormat AddLink =
-    new DataFormat("application.NodeLink.add");
+    new DataFormat("Display.NodoLink.add");
   private static final long serialVersionUID = -1890998765646621338L;
 
 	public static final DataFormat AddNode = 
-			new DataFormat("Display.ItemPrueba.add");
+			new DataFormat("Display.Iconos.add");
 	
 	private final List <Pair<String, Object> > mDataPairs = new ArrayList <Pair<String, Object> > ();
 	

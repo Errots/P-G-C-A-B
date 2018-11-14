@@ -16,7 +16,12 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.CubicCurve;
 
 public class LinkNodo extends AnchorPane {
@@ -104,18 +109,64 @@ public void setEnd(Point2D endPoint) {
     node_link.setEndY(endPoint.getY()); 
 }
 
-public void bindEnds (IconoMoviblePrueba source, IconoMoviblePrueba target) {
+public void bindEnds (IconDrag source, IconDrag target) {
+    Circle SourceCircle = null;
+    Circle TargetCircle = null;
+    
+    Node nodeOut = source.getChildren().get(0);
+    if(nodeOut instanceof VBox){
+        for(Node nodeIn:((VBox)nodeOut).getChildren()){
+            if(nodeIn instanceof GridPane){
+                for(Node node:((GridPane)nodeIn).getChildren()){
+                    if(node instanceof Circle){
+                        SourceCircle = (Circle) node;
+                    }
+                }
+            }
+        }
+    } 
+    Node nodeOut2 = target.getChildren().get(0);
+    if(nodeOut2 instanceof VBox){
+        for(Node nodeIn:((VBox)nodeOut2).getChildren()){
+            if(nodeIn instanceof HBox){
+                for(Node node:((HBox)nodeIn).getChildren()){
+                    if(node instanceof Circle){
+                        TargetCircle = (Circle) node;
+                    }
+                }
+            }
+        }
+    } 
+    
+    Point2D LocalCords = getParent().sceneToLocal(SourceCircle.getLayoutX(), SourceCircle.getLayoutX());
+    
+    System.out.println(source.layoutYProperty());
+    System.out.println(source.layoutXProperty());
+    System.out.println(target.layoutYProperty());
+    System.out.println(target.layoutXProperty());
+    System.out.println(SourceCircle.layoutYProperty());
+    System.out.println(SourceCircle.layoutXProperty());
+    System.out.println(TargetCircle.layoutYProperty());
+    System.out.println(TargetCircle.layoutXProperty());
+    System.out.println(SourceCircle.getBoundsInParent());
+    System.out.println(TargetCircle.layoutXProperty().subtract(target.layoutYProperty()));
+    System.out.println(SourceCircle.layoutYProperty().subtract(source.layoutYProperty()));
+    System.out.println(SourceCircle.centerYProperty());
+    System.out.println(SourceCircle.centerXProperty().get());
+    System.out.println(TargetCircle.centerYProperty().get());
+    System.out.println(TargetCircle.centerXProperty());
+    
     node_link.startXProperty().bind(
-        Bindings.add(source.layoutXProperty(), (source.getWidth() / 2.0)));
+        Bindings.add(SourceCircle.layoutXProperty(), (SourceCircle.getRadius()/ 2.0)));
         
     node_link.startYProperty().bind(
-        Bindings.add(source.layoutYProperty(), (source.getWidth() / 2.0)));
+        Bindings.add(SourceCircle.layoutYProperty(), (SourceCircle.getRadius() / 2.0)));
         
     node_link.endXProperty().bind(
-        Bindings.add(target.layoutXProperty(), (target.getWidth() / 2.0)));
+        Bindings.add(TargetCircle.layoutXProperty(), (TargetCircle.getRadius() / 2.0)));
         
     node_link.endYProperty().bind(
-        Bindings.add(target.layoutYProperty(), (target.getWidth() / 2.0)));
+        Bindings.add(TargetCircle.layoutXProperty(), (TargetCircle.getRadius() / 2.0)));
     
     source.registerLink (getId());
     target.registerLink (getId());

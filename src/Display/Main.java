@@ -1,7 +1,13 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/////////////////////////////////////////////////////////////////////////////
+/// Author: Erick Roberto Sala Noverola (Alias: Errots)                                  ///
+/// Fecha: 06/11/2018                                                     ///
+/// Todo lo que se incluye en el paquete display                          ///
+/// esta basado en el codigo de Joel Graff                                ///
+///                                                                       ///
+/// https://monograff76.wordpress.com/2015/02/17                          ///
+///  /developing-a-drag-and-drop-ui-in-javafx-part-i-skeleton-application ///
+/////////////////////////////////////////////////////////////////////////////
  */
 package Display;
 
@@ -12,10 +18,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-/**
- *
- * @author Errot
- */
 public class Main extends Application {
     
     @Override
