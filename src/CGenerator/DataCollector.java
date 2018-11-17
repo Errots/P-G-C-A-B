@@ -3,21 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Display;
+package CGenerator;
 
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author Errot
  */
-public enum TipoItemPrueba {
-    
-    red,
-	green,
-	blue,
-	black,
-	yellow,
-	purple,
-	grey
-    
+public class DataCollector {
+    public String TipoItem;
+   public String DatoItem;
 }
