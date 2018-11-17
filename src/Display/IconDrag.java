@@ -109,32 +109,6 @@ public void relocateToPoint (Point2D p) {
         (int) (localCoords.getY() - mDragOffset.getY())
     );
     
-    Node nodeOut = getChildren().get(0);
-    if(nodeOut instanceof VBox){
-        for(Node nodeIn:((VBox)nodeOut).getChildren()){
-            if(nodeIn instanceof GridPane){
-                for(Node node:((GridPane)nodeIn).getChildren()){
-                    if(node instanceof Circle){
-                        SourceCircle = (Circle) node;
-                    }
-                }
-            }
-        }
-    }  
-    if(nodeOut instanceof VBox){
-        for(Node nodeIn:((VBox)nodeOut).getChildren()){
-            if(nodeIn instanceof HBox){
-                for(Node node:((HBox)nodeIn).getChildren()){
-                    if(node instanceof Circle){
-                        node.l;
-                    }
-                }
-            }
-        }
-    }
-    
-    
-    
     mDragLink = new LinkNodo();
     mDragLink.setVisible(false);
             

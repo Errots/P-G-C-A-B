@@ -111,17 +111,18 @@ public void setEnd(Point2D endPoint) {
 
 public void bindEnds (IconDrag source, IconDrag target) {
     
+    
     node_link.startXProperty().bind(
         Bindings.add(source.layoutXProperty(), (source.getWidth()/ 2.0)));
         
     node_link.startYProperty().bind(
-        Bindings.add(source.layoutYProperty(), (source.getHeight()/ 2.0)));
+        Bindings.add(source.layoutYProperty(), (source.getWidth() / 2.0)));
         
     node_link.endXProperty().bind(
         Bindings.add(target.layoutXProperty(), (target.getWidth() / 2.0)));
         
     node_link.endYProperty().bind(
-        Bindings.add(target.layoutYProperty(), (target.getHeight() / 2.0)));
+        Bindings.add(target.layoutXProperty(), (target.getWidth() / 2.0)));
     
     source.registerLink (getId());
     target.registerLink (getId());
