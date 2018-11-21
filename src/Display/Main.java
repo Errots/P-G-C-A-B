@@ -1,6 +1,6 @@
 /*
 /////////////////////////////////////////////////////////////////////////////
-/// Author: Erick Roberto Sala Noverola (Alias: Errots)                                  ///
+/// Author: Erick Roberto Sala Noverola (Alias: Errots)                   ///
 /// Fecha: 06/11/2018                                                     ///
 /// Todo lo que se incluye en el paquete display                          ///
 /// esta basado en el codigo de Joel Graff                                ///

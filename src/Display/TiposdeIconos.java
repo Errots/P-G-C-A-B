@@ -5,5 +5,6 @@ public enum TiposdeIconos {
     Flotante,
     Doble,
     Texto,
-    Leer
+    Leer,
+    Mostrar
 }

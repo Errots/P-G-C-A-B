@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -8,17 +11,48 @@
 
 <fx:root fx:id="root_pane" minHeight="200.0" minWidth="200.0" stylesheets="@Aplicacion.css" type="javafx.scene.layout.AnchorPane" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <SplitPane fx:id="base_pane" dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <items>
-            <ScrollPane fitToHeight="true" hbarPolicy="NEVER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="100.0">
+      <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <MenuBar prefHeight="25.0" prefWidth="200.0">
+              <menus>
+                <Menu mnemonicParsing="false" text="File">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Close" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Generar">
+                  <items>
+                    <MenuItem fx:id="GenerateCode_Handle" mnemonicParsing="false" text="Codigo" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="About" />
+                  </items>
+                </Menu>
+              </menus>
                <padding>
-                  <Insets left="8.0" top="6.0" />
+                  <Insets bottom="5.0" />
                </padding>
-               <content>
-                  <VBox fx:id="left_pane" spacing="10.0" />
-               </content></ScrollPane>
-          <AnchorPane fx:id="right_pane" />
-        </items>
-      </SplitPane>
+            </MenuBar>
+            <AnchorPane minHeight="200.0" minWidth="200.0">
+               <children>
+                  <SplitPane fx:id="base_pane" dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <items>
+                        <ScrollPane fitToHeight="true" hbarPolicy="NEVER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="100.0">
+                           <padding>
+                              <Insets left="8.0" top="6.0" />
+                           </padding>
+                           <content>
+                              <VBox fx:id="left_pane" spacing="10.0" />
+                           </content>
+                        </ScrollPane>
+                      <AnchorPane fx:id="right_pane" />
+                    </items>
+                  </SplitPane>
+               </children>
+            </AnchorPane>
+         </children>
+      </VBox>
    </children>
 </fx:root>
