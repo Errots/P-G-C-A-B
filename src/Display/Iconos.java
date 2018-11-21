@@ -71,6 +71,11 @@ public void relocateToPoint (Point2D p) {
         iconoTitle_bar.setText("Leer");
         getStyleClass().add("icon-green");
         break;
+        
+        case Mostrar:
+        iconoTitle_bar.setText("Mostrar");
+        getStyleClass().add("icon-purple");
+        break;
         }
     }
 }

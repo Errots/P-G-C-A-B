@@ -3,10 +3,13 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Errot/Documents/P-G-C-A-B/src/CodigosdePrueba/ventana2.java</file>
+            <file>file:/C:/Users/Errot/Documents/P-G-C-A-B/src/Prueba2.java</file>
             <file>file:/C:/Users/Errot/Documents/P-G-C-A-B/src/CGenerator/GeneradorArchivo.java</file>
-            <file>file:/C:/Users/Errot/Documents/P-G-C-A-B/src/CodigosdePrueba/ventana.java</file>
-            <file>file:/C:/Users/Errot/Documents/P-G-C-A-B/src/CGenerator/DataCollector.java</file>
+            <file>file:/C:/Users/Errot/Documents/P-G-C-A-B/src/CGenerator/Copilador.java</file>
+            <file>file:/C:/Users/Errot/Documents/P-G-C-A-B/src/Display/TiposdeIconos.java</file>
+            <file>file:/C:/Users/Errot/Documents/P-G-C-A-B/src/CGenerator/TipoComando.java</file>
+            <file>file:/C:/Users/Errot/Documents/P-G-C-A-B/src/Display/RootLayout.java</file>
+            <file>file:/C:/Users/Errot/Documents/P-G-C-A-B/src/Display/IconDrag.java</file>
         </group>
     </open-files>
 </project-private>

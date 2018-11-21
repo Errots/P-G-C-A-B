@@ -1,12 +1,17 @@
 package Display;
 
+import CGenerator.Copilador;
+import CGenerator.DataCollector;
 import java.io.IOException;
+import java.util.ArrayList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
@@ -19,18 +24,24 @@ import javafx.scene.layout.VBox;
 
 /**
  *
- * @author Errot
+ * @author Errots
  */
 public class RootLayout extends AnchorPane {
     
     @FXML SplitPane base_pane;
     @FXML AnchorPane right_pane;
     @FXML VBox left_pane;
+    @FXML MenuItem GenerateCode_Handle;
 
     private Iconos mDragOverIcon = null;
     private EventHandler mIconDragOverRoot=null;
     private EventHandler mIconDragDropped=null;
     private EventHandler mIconDragOverRightPane=null;
+    private EventHandler mMenuItemActionEvent=null;
+    
+    private ArrayList<String> NodesIds = new ArrayList<String>();
+    
+    private ArrayList<DataCollector> ColeccionDatos = new ArrayList<>();
     
       
     public RootLayout(){
@@ -60,6 +71,10 @@ public class RootLayout extends AnchorPane {
     mDragOverIcon.setVisible(false);
     mDragOverIcon.setOpacity(0.65);
     getChildren().add(mDragOverIcon);
+    
+    buildMouseEventHandle();
+    GenerateCode_Handle.setOnAction(mMenuItemActionEvent);
+
     
     // Llenar toda la barra izquierda con iconos para pruebas
     for (int i = 0; i<TiposdeIconos.values().length;i++)
@@ -169,8 +184,7 @@ public class RootLayout extends AnchorPane {
 								
 			mDragOverIcon.setVisible(false);
 				
-			Contenedor container = 
-			(Contenedor) event.getDragboard().getContent(Contenedor.AddNode);
+			Contenedor container =(Contenedor) event.getDragboard().getContent(Contenedor.AddNode);
 				
 		if (container != null) {
             if (container.getValue("scene_coords") != null) {
@@ -179,6 +193,7 @@ public class RootLayout extends AnchorPane {
 
                 node.setType(TiposdeIconos.valueOf(container.getValue("type")));
                 right_pane.getChildren().add(node);
+                NodesIds.add(node.getId());
 
                 Point2D cursorPoint = container.getValue("scene_coords");
 
@@ -227,5 +242,30 @@ public class RootLayout extends AnchorPane {
             event.consume();
         }   
     });
+    }
+    
+    private void buildMouseEventHandle()
+    {
+        mMenuItemActionEvent = new EventHandler <ActionEvent>()
+        {
+            @Override
+            public void handle(ActionEvent event)
+            {
+                Copilador copiler = new Copilador();
+                int i =0;
+                for(Node n: right_pane.getChildren())
+                {
+                    if(NodesIds.get(i).equals(n.getId()))
+                    {
+                        IconDrag Icn =  (IconDrag)n;
+                        ColeccionDatos.add(Icn.getDataCollector());
+                        i++;  
+                    }
+                    
+                }
+                if(!ColeccionDatos.isEmpty()) copiler.RecuperarDatos(ColeccionDatos);
+                event.consume();
+            }
+        };
     }
 }

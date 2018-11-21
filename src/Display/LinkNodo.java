@@ -122,7 +122,7 @@ public void bindEnds (IconDrag source, IconDrag target) {
         Bindings.add(target.layoutXProperty(), (target.getWidth() / 2.0)));
         
     node_link.endYProperty().bind(
-        Bindings.add(target.layoutXProperty(), (target.getWidth() / 2.0)));
+        Bindings.add(target.layoutYProperty(), (target.getWidth() / 2.0)));
     
     source.registerLink (getId());
     target.registerLink (getId());

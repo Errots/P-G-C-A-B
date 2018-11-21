@@ -1,28 +1,34 @@
 package Display;
 
+
+import CGenerator.*;
 import java.io.IOException;
-import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.UUID;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
-import javafx.scene.input.Dragboard;
+
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+
 import javafx.scene.shape.Circle;
 
 public class IconDrag extends AnchorPane{
@@ -32,11 +38,18 @@ public class IconDrag extends AnchorPane{
     @FXML private Circle endLink_Handle;
     @FXML private Label title_bar;
     @FXML private Label close_button;
+    @FXML private TextField varValue_Handle;
+    @FXML private TextField varName_Handle;
+    @FXML private ImageView addBtn_Handle;
+    @FXML private GridPane Inputs_Handle;
     
     private LinkNodo mDragLink = null;
     private AnchorPane right_pane = null;
 
     private EventHandler <MouseEvent> mLinkHandleDragDetected;
+    private EventHandler <MouseEvent> mVarNameEventHandleMouseExit;
+    private EventHandler <MouseEvent> mVarValueEventHandleMouseExit;
+    private EventHandler <MouseEvent> mAddBtnEventHandleMouseClicked;
     private EventHandler <DragEvent> mLinkHandleDragDropped;
     private EventHandler <DragEvent> mContextLinkDragOver;  
     private EventHandler <DragEvent> mContextLinkDragDropped;		
@@ -44,6 +57,8 @@ public class IconDrag extends AnchorPane{
     private EventHandler <DragEvent> mContextDragDropped;                                
 
     private final List <String> mLinkIds = new ArrayList <String> ();
+    
+    private DataCollector ColeccionDatos = new DataCollector();
     
     private TiposdeIconos mType = null;
     
@@ -72,9 +87,12 @@ public class IconDrag extends AnchorPane{
     
     @FXML
 private void initialize() 
-{   
+{   buildNodeEventHandlers();
     buildNodeDragHandlers();
     buildLinkDragHandlers();
+    varValue_Handle.setOnMouseExited(mVarValueEventHandleMouseExit);
+    varName_Handle.setOnMouseExited(mVarNameEventHandleMouseExit);
+    addBtn_Handle.setOnMouseClicked(mAddBtnEventHandleMouseClicked);
     endLink_Handle.setOnDragDetected(mLinkHandleDragDetected);
     startLink_Handle.setOnDragDetected(mLinkHandleDragDetected);
     endLink_Handle.setOnDragDropped(mLinkHandleDragDropped);
@@ -123,6 +141,8 @@ public void relocateToPoint (Point2D p) {
 }
 
 public TiposdeIconos getType(){return mType;}
+
+public DataCollector getDataCollector(){return ColeccionDatos;}
     
 public void setType(TiposdeIconos type){
     mType = type;
@@ -131,31 +151,89 @@ public void setType(TiposdeIconos type){
     switch(mType){
         
         case Entero:
+        ColeccionDatos.TipoItem = "Entero";
+        ((VBox) addBtn_Handle.getParent()).getChildren().remove(addBtn_Handle);
         title_bar.setText("Entero");
         getStyleClass().add("icon-blue");
         break;
             
         case Flotante:
+        ColeccionDatos.TipoItem = "Flotante";
+        ((VBox) addBtn_Handle.getParent()).getChildren().remove(addBtn_Handle);
         title_bar.setText("Flotante");
         getStyleClass().add("icon-red");
         break;
             
         case Doble:
+        ColeccionDatos.TipoItem = "Doble";        
+        ((VBox) addBtn_Handle.getParent()).getChildren().remove(addBtn_Handle);
         title_bar.setText("Doble");
         getStyleClass().add("icon-grey");
         break;
             
         case Texto:
+        ColeccionDatos.TipoItem = "Texto";
+        addBtn_Handle.setVisible(true);
         title_bar.setText("Texto");
         getStyleClass().add("icon-yellow");
         break;
         
         case Leer:
+        ColeccionDatos.TipoItem = "Leer";
+        ((GridPane) endLink_Handle.getParent()).getChildren().remove(endLink_Handle);
+        ((GridPane) varValue_Handle.getParent()).getChildren().remove(varValue_Handle);
         title_bar.setText("Leer");
         getStyleClass().add("icon-green");
         break;
+        
+        case Mostrar:
+        ColeccionDatos.TipoItem = "Mostrar";
+        ((VBox) varName_Handle.getParent()).getChildren().remove(varName_Handle);
+        title_bar.setText("Mostrar");
+        getStyleClass().add("icon-purple");
+        break;
     }
 }
+public void buildNodeEventHandlers()
+{
+    mVarValueEventHandleMouseExit = new EventHandler <MouseEvent>()
+    {
+        @Override
+        public void handle(MouseEvent event)
+        {
+            String valor = varValue_Handle.getText();
+            if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+            ColeccionDatos.ValorItem = varValue_Handle.getText();
+            }
+            event.consume();
+        }
+    };
+    
+    mVarNameEventHandleMouseExit = new EventHandler <MouseEvent>()
+    {
+        @Override
+        public void handle(MouseEvent event)
+        {
+            if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+            ColeccionDatos.NombreItem = varName_Handle.getText();
+            }
+            event.consume();
+        }
+    };
+    
+//    mAddBtnEventHandleMouseClicked = new EventHandler <MouseEvent>()
+//    {
+//        @Override
+//        public void handle(MouseEvent event)
+//        {
+//            
+//            ObservableList<RowConstraints> Rows =Inputs_Handle.getRowConstraints();
+//            int NRows = Rows.size();
+//            Circle crl = new Circle(10);
+//        }
+//    };
+}
+
 public void buildNodeDragHandlers() {
 
     mContextDragOver = new EventHandler <DragEvent>() {
