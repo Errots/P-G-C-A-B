@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<fx:root fx:id="root_pane" minHeight="200.0" minWidth="200.0" stylesheets="@Aplicacion.css" type="javafx.scene.layout.AnchorPane" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root fx:id="root_pane" minHeight="300.0" minWidth="500.0" stylesheets="@Aplicacion.css" type="javafx.scene.layout.AnchorPane" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <VBox prefHeight="100.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <MenuBar prefHeight="25.0" prefWidth="200.0">
               <menus>
@@ -30,11 +36,63 @@
                     <MenuItem mnemonicParsing="false" text="About" />
                   </items>
                 </Menu>
+                  <Menu mnemonicParsing="false" text="Ejecutar">
+                    <items>
+                      <MenuItem mnemonicParsing="false" text="Ejecutar Archivo" />
+                    </items>
+                  </Menu>
               </menus>
                <padding>
                   <Insets bottom="5.0" />
                </padding>
             </MenuBar>
+            <HBox fillHeight="false" spacing="10.0">
+               <children>
+                  <ImageView fx:id="NewClass_Handle" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../Iconos/curly-brackets.png" />
+                     </image>
+                     <cursor>
+                        <Cursor fx:constant="OPEN_HAND" />
+                     </cursor>
+                  </ImageView>
+                  <ImageView fx:id="NewFile_Handle" fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../Iconos/add-new-document.png" />
+                     </image>
+                     <cursor>
+                        <Cursor fx:constant="OPEN_HAND" />
+                     </cursor>
+                  </ImageView>
+                  <ImageView fx:id="NewProyect_Handle" fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../Iconos/folder-with-plus-sign.png" />
+                     </image>
+                     <cursor>
+                        <Cursor fx:constant="OPEN_HAND" />
+                     </cursor>
+                  </ImageView>
+                  <ImageView fx:id="Generator_Handle" fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../Iconos/handyman-tools.png" />
+                     </image>
+                     <cursor>
+                        <Cursor fx:constant="OPEN_HAND" />
+                     </cursor>
+                  </ImageView>
+                  <ImageView fx:id="Execute_Handle" fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../Iconos/play-button.png" />
+                     </image>
+                     <cursor>
+                        <Cursor fx:constant="OPEN_HAND" />
+                     </cursor>
+                  </ImageView>
+               </children>
+               <padding>
+                  <Insets bottom="2.0" left="5.0" right="5.0" top="2.0" />
+               </padding>
+            </HBox>
             <AnchorPane minHeight="200.0" minWidth="200.0">
                <children>
                   <SplitPane fx:id="base_pane" dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -47,11 +105,24 @@
                               <VBox fx:id="left_pane" spacing="10.0" />
                            </content>
                         </ScrollPane>
-                      <AnchorPane fx:id="right_pane" />
+                        <ScrollPane vbarPolicy="NEVER">
+                           <content>
+                            <AnchorPane fx:id="right_pane" prefHeight="200.0" prefWidth="1500.0" />
+                           </content>
+                        </ScrollPane>
                     </items>
                   </SplitPane>
                </children>
             </AnchorPane>
+            <TitledPane animated="false" text="Salida">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <TextArea fx:id="Output_Handle" disable="true" editable="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                     </children>
+                  </AnchorPane>
+              </content>
+            </TitledPane>
          </children>
       </VBox>
    </children>

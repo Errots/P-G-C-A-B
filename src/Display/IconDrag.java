@@ -18,6 +18,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
@@ -202,6 +203,63 @@ public void buildNodeEventHandlers()
         public void handle(MouseEvent event)
         {
             String valor = varValue_Handle.getText();
+            switch(mType)
+            {
+            case Entero:
+                if(!valor.matches("[0-9].*")|| valor.isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan numeros enteros");
+                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+                    ColeccionDatos.noValido = false;
+                }
+                else {root_pane.setStyle("-fx-background-color: blue;"); ColeccionDatos.noValido = true;}
+            break;
+            
+            case Flotante:
+                if(!valor.matches("[0-9].*")|| valor.isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan numeros decimales");
+                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+                    ColeccionDatos.noValido = false;
+                }
+                else {root_pane.setStyle("-fx-background-color: red;"); ColeccionDatos.noValido = true;}
+            break;
+            
+            case Doble:
+                if(!valor.matches("[0-9].*")|| valor.isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan numeros decimales");
+                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+                    ColeccionDatos.noValido = false;
+                }
+                else {root_pane.setStyle("-fx-background-color: grey;"); ColeccionDatos.noValido = true;}
+            break;
+            
+            case Texto:
+                if(!valor.matches("[a-z,A-Z].*")|| valor.isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+                    ColeccionDatos.noValido = false;
+                }
+                else {root_pane.setStyle("-fx-background-color: yellow;"); ColeccionDatos.noValido = true;}
+            break;
+        
+            case Mostrar:
+                if(!valor.matches("[a-z,A-Z].*")|| valor.isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+                    ColeccionDatos.noValido = false;
+                }
+                else {root_pane.setStyle("-fx-background-color: purple;"); ColeccionDatos.noValido = true;}
+            break;
+            }
             if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
             ColeccionDatos.ValorItem = varValue_Handle.getText();
             }
@@ -214,7 +272,46 @@ public void buildNodeEventHandlers()
         @Override
         public void handle(MouseEvent event)
         {
-            if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+            String nombre = varName_Handle.getText();
+            if(!nombre.matches("[a-z,A-Z].*")|| nombre.isEmpty())
+                {
+                    ColeccionDatos.noValido = false;
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+
+                }
+                else 
+                {
+                switch(mType){
+        
+                    case Entero:
+                    root_pane.setStyle("-fx-background-color: blue;"); 
+                    break;
+            
+                    case Flotante:
+                    root_pane.setStyle("-fx-background-color: red;"); 
+                    break;
+            
+                    case Doble:
+                    root_pane.setStyle("-fx-background-color: grey;"); 
+                    break;
+            
+                    case Texto:
+                    root_pane.setStyle("-fx-background-color: yellow;"); 
+                    break;
+        
+                    case Leer:
+                    root_pane.setStyle("-fx-background-color: green;"); 
+                    break;
+        
+                    case Mostrar:
+                    root_pane.setStyle("-fx-background-color: purple;"); 
+                    break;
+                }
+                    ColeccionDatos.noValido = true;
+                }
+            if (!ColeccionDatos.NombreItem.equals(nombre)){           
             ColeccionDatos.NombreItem = varName_Handle.getText();
             }
             event.consume();

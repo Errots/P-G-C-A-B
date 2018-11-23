@@ -4,6 +4,8 @@ import CGenerator.Copilador;
 import CGenerator.DataCollector;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -13,6 +15,8 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
@@ -22,22 +26,21 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
 
-/**
- *
- * @author Errots
- */
 public class RootLayout extends AnchorPane {
     
     @FXML SplitPane base_pane;
     @FXML AnchorPane right_pane;
     @FXML VBox left_pane;
     @FXML MenuItem GenerateCode_Handle;
+    @FXML TextArea Output_Handle;
+    @FXML ImageView Generator_Handle;
 
     private Iconos mDragOverIcon = null;
     private EventHandler mIconDragOverRoot=null;
     private EventHandler mIconDragDropped=null;
     private EventHandler mIconDragOverRightPane=null;
     private EventHandler mMenuItemActionEvent=null;
+    private EventHandler mGeneradorMouseEvent=null;
     
     private ArrayList<String> NodesIds = new ArrayList<String>();
     
@@ -74,6 +77,8 @@ public class RootLayout extends AnchorPane {
     
     buildMouseEventHandle();
     GenerateCode_Handle.setOnAction(mMenuItemActionEvent);
+    Generator_Handle.setOnMouseClicked(mGeneradorMouseEvent);
+    
 
     
     // Llenar toda la barra izquierda con iconos para pruebas
@@ -89,6 +94,7 @@ public class RootLayout extends AnchorPane {
     
     }
 
+    
     private void addDragDetection(Iconos dragIcon) {
 		
        dragIcon.setOnDragDetected (new EventHandler <MouseEvent> () {
@@ -246,6 +252,34 @@ public class RootLayout extends AnchorPane {
     
     private void buildMouseEventHandle()
     {
+        mGeneradorMouseEvent = new EventHandler <MouseEvent>()
+        {
+            @Override
+            public void handle(MouseEvent event)
+            {
+                Copilador copiler = new Copilador();
+                int i =0;
+                boolean Correcto = true;
+                for(Node n: right_pane.getChildren())
+                {
+                    if(NodesIds.get(i).equals(n.getId()))
+                    {
+                        IconDrag Icn =  (IconDrag)n;
+                        DataCollector drag = Icn.getDataCollector();
+                        if(drag.noValido == false){Correcto = false;}
+                        ColeccionDatos.add(Icn.getDataCollector());
+                        i++;  
+                    }
+                    
+                }
+                if(!ColeccionDatos.isEmpty() && Correcto == true) try {
+                    copiler.RecuperarDatos(ColeccionDatos);
+                } catch (IOException ex) {
+                    Logger.getLogger(RootLayout.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                event.consume();
+            }
+        };
         mMenuItemActionEvent = new EventHandler <ActionEvent>()
         {
             @Override
@@ -253,19 +287,31 @@ public class RootLayout extends AnchorPane {
             {
                 Copilador copiler = new Copilador();
                 int i =0;
+                boolean Correcto = true;
                 for(Node n: right_pane.getChildren())
                 {
                     if(NodesIds.get(i).equals(n.getId()))
                     {
                         IconDrag Icn =  (IconDrag)n;
+                        DataCollector drag = Icn.getDataCollector();
+                        if(drag.noValido == false){Correcto = false;}
                         ColeccionDatos.add(Icn.getDataCollector());
                         i++;  
                     }
                     
                 }
-                if(!ColeccionDatos.isEmpty()) copiler.RecuperarDatos(ColeccionDatos);
+                if(!ColeccionDatos.isEmpty() && Correcto == true) try {
+                    copiler.RecuperarDatos(ColeccionDatos);
+                } catch (IOException ex) {
+                    Logger.getLogger(RootLayout.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 event.consume();
             }
         };
+    }
+
+    public void WriteTextOutput(String texto)
+    {
+        Output_Handle.appendText(texto+"\n");
     }
 }

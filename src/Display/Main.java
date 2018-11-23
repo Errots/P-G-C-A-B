@@ -15,6 +15,7 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
@@ -23,9 +24,11 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         
-        
+        primaryStage.setTitle("GCAB");
+        primaryStage.getIcons().add(new Image("/Display/Iconos/PGCAB.png"));
         BorderPane root = new BorderPane();
         try{
+        
         Scene scene = new Scene(root, 640, 480);
         scene.getStylesheets().add(getClass().getResource("/Display/FXMLs/Aplicacion.css").toExternalForm());        
         primaryStage.setScene(scene);

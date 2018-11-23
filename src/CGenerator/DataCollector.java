@@ -9,6 +9,7 @@ public class DataCollector {
     public String ValorItem = "";
     public String Id2 = "";
     public ArrayList<String> Textos;
+    public boolean noValido = true;
 }
 
 

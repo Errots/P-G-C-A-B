@@ -1,0 +1,5 @@
+public class asfgq3{
+public static void main(String[] args){
+int qwet = 124;
+int qwet = 124;
+}}

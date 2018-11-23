@@ -52,7 +52,7 @@
             </GridPane>
             <VBox prefHeight="59.0" prefWidth="100.0" spacing="10.0">
                <children>
-                  <TextField fx:id="varName_Handle" prefWidth="98.0">
+                  <TextField fx:id="varName_Handle" prefWidth="98.0" promptText="Nombre variable">
                      <VBox.margin>
                         <Insets left="5.0" right="5.0" />
                      </VBox.margin>
@@ -66,7 +66,7 @@
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
-                        <TextField fx:id="varValue_Handle" GridPane.columnIndex="1">
+                        <TextField fx:id="varValue_Handle" promptText="Valor" GridPane.columnIndex="1">
                            <GridPane.margin>
                               <Insets right="5.0" />
                            </GridPane.margin>
