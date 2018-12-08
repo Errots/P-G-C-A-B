@@ -143,6 +143,12 @@ public void relocateToPoint (Point2D p) {
 
 public TiposdeIconos getType(){return mType;}
 
+public void ValueDisable(boolean disable){varValue_Handle.setDisable(disable); }
+public void setDataCollector(DataCollector data)
+{
+    ColeccionDatos.ValorItem = data.ValorItem;
+    varValue_Handle.setText(data.ValorItem);
+}
 public DataCollector getDataCollector(){return ColeccionDatos;}
     
 public void setType(TiposdeIconos type){
@@ -377,7 +383,8 @@ public void buildNodeDragHandlers() {
         iterNode.hasNext();) {
             
         Node node = (Node) iterNode.next();
-                            
+              
+       
         if (node.getId() == null)
             continue;
                         
@@ -385,6 +392,7 @@ public void buildNodeDragHandlers() {
             iterNode.remove();
         }
         iterId.remove();
+        ValueDisable(false);
     }
     }
     }); 

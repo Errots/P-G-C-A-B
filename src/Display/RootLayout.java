@@ -241,8 +241,12 @@ public class RootLayout extends AnchorPane {
                             
         }
                         
-        if (source != null && target != null)
-        link.bindEnds(source, target);
+        if (source != null && target != null){
+            DataCollector data = source.getDataCollector();
+            target.setDataCollector(data);
+            target.ValueDisable(true);
+            link.bindEnds(source, target);
+        }
     }
     }
             event.consume();
