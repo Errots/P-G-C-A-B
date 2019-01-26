@@ -9,7 +9,7 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="P-G-C-A-B.jar" size="130446" download="eager" />
+    <jar href="P-G-C-A-B.jar" size="130435" download="eager" />
   </resources>
   <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="P-G-C-A-B" >
     <param name="requiredFXVersion" value="8.0+"/>

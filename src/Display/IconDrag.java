@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.UUID;
+import java.util.Timer;
+import java.util.TimerTask;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -55,7 +57,8 @@ public class IconDrag extends AnchorPane{
     private EventHandler <DragEvent> mContextLinkDragOver;  
     private EventHandler <DragEvent> mContextLinkDragDropped;		
     private EventHandler <DragEvent> mContextDragOver;
-    private EventHandler <DragEvent> mContextDragDropped;                                
+    private EventHandler <DragEvent> mContextDragDropped;   
+    Timer timer = new Timer();
 
     private final List <String> mLinkIds = new ArrayList <String> ();
     
@@ -66,7 +69,8 @@ public class IconDrag extends AnchorPane{
     private Point2D mDragOffset = new Point2D(0.0, 0.0);
         
     private final IconDrag self;
-    
+    boolean NameX = false;
+    boolean ValX = false;
     public IconDrag() {
     
     FXMLLoader fxmlLoader = new FXMLLoader(
@@ -91,8 +95,6 @@ private void initialize()
 {   buildNodeEventHandlers();
     buildNodeDragHandlers();
     buildLinkDragHandlers();
-    varValue_Handle.setOnMouseExited(mVarValueEventHandleMouseExit);
-    varName_Handle.setOnMouseExited(mVarNameEventHandleMouseExit);
     addBtn_Handle.setOnMouseClicked(mAddBtnEventHandleMouseClicked);
     endLink_Handle.setOnDragDetected(mLinkHandleDragDetected);
     startLink_Handle.setOnDragDetected(mLinkHandleDragDetected);
@@ -109,6 +111,131 @@ private void initialize()
 	}
 				
 });
+    
+    
+timer.scheduleAtFixedRate(new TimerTask() {
+  @Override
+  public void run() {
+    String nombre = varName_Handle.getText();
+            if(!nombre.matches("[a-z,A-Z].*")|| nombre.isEmpty())
+                {
+                    ColeccionDatos.noValido = false;
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+                    NameX = false;
+                }
+                else 
+                {
+                    NameX = true;
+                }
+            if (!ColeccionDatos.NombreItem.equals(nombre)){           
+            ColeccionDatos.NombreItem = varName_Handle.getText();
+            }
+  }
+}, 10000, 10000);    
+    
+timer.scheduleAtFixedRate(new TimerTask() {
+  @Override
+  public void run() {
+     String valor = varValue_Handle.getText();
+            switch(mType)
+            {
+            case Entero:
+                if(!valor.matches("[0-9].*")|| valor.isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan numeros enteros");
+                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }
+                else {ValX = true;}
+            break;
+            
+            case Flotante:
+                if(!valor.matches("[-]?[0-9]*\\\\.?[0-9]+")|| valor.isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan numeros decimales");
+                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }
+                else {ValX = true;}
+            break;
+            
+            case Doble:
+                if(!valor.matches("[-]?[0-9]*\\\\.?[0-9]+")|| valor.isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan numeros decimales");
+                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }
+                else {ValX = true;}
+            break;
+            
+            case Texto:
+                if(!valor.matches("[a-z,A-Z].*")|| valor.isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }
+                else {ValX = true;}
+            break;
+        
+            case Mostrar:
+                if(!valor.matches("[a-z,A-Z].*")|| valor.isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }
+                else {ValX = true;}
+            break;
+            }
+            if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+            ColeccionDatos.ValorItem = varValue_Handle.getText();
+            }
+    }
+}, 10000, 10000);
+
+    if (ValX && NameX) {
+        switch(mType){
+        
+                    case Entero:
+                    root_pane.setStyle("-fx-background-color: blue;"); 
+                    break;
+            
+                    case Flotante:
+                    root_pane.setStyle("-fx-background-color: red;"); 
+                    break;
+            
+                    case Doble:
+                    root_pane.setStyle("-fx-background-color: grey;"); 
+                    break;
+            
+                    case Texto:
+                    root_pane.setStyle("-fx-background-color: yellow;"); 
+                    break;
+        
+                    case Leer:
+                    root_pane.setStyle("-fx-background-color: green;"); 
+                    break;
+        
+                    case Mostrar:
+                    root_pane.setStyle("-fx-background-color: purple;"); 
+                    break;
+                }
+                    ColeccionDatos.noValido = true;
+    }
 }
 
 public void registerLink(String linkId) {
@@ -203,127 +330,7 @@ public void setType(TiposdeIconos type){
 }
 public void buildNodeEventHandlers()
 {
-    mVarValueEventHandleMouseExit = new EventHandler <MouseEvent>()
-    {
-        @Override
-        public void handle(MouseEvent event)
-        {
-            String valor = varValue_Handle.getText();
-            switch(mType)
-            {
-            case Entero:
-                if(!valor.matches("[0-9].*")|| valor.isEmpty())
-                {
-                    Tooltip nota = new Tooltip();
-                    nota.setText("Solo se aceptan numeros enteros");
-                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
-                    ColeccionDatos.noValido = false;
-                }
-                else {root_pane.setStyle("-fx-background-color: blue;"); ColeccionDatos.noValido = true;}
-            break;
-            
-            case Flotante:
-                if(!valor.matches("[0-9].*")|| valor.isEmpty())
-                {
-                    Tooltip nota = new Tooltip();
-                    nota.setText("Solo se aceptan numeros decimales");
-                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
-                    ColeccionDatos.noValido = false;
-                }
-                else {root_pane.setStyle("-fx-background-color: red;"); ColeccionDatos.noValido = true;}
-            break;
-            
-            case Doble:
-                if(!valor.matches("[0-9].*")|| valor.isEmpty())
-                {
-                    Tooltip nota = new Tooltip();
-                    nota.setText("Solo se aceptan numeros decimales");
-                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
-                    ColeccionDatos.noValido = false;
-                }
-                else {root_pane.setStyle("-fx-background-color: grey;"); ColeccionDatos.noValido = true;}
-            break;
-            
-            case Texto:
-                if(!valor.matches("[a-z,A-Z].*")|| valor.isEmpty())
-                {
-                    Tooltip nota = new Tooltip();
-                    nota.setText("Solo se aceptan letras");
-                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
-                    ColeccionDatos.noValido = false;
-                }
-                else {root_pane.setStyle("-fx-background-color: yellow;"); ColeccionDatos.noValido = true;}
-            break;
-        
-            case Mostrar:
-                if(!valor.matches("[a-z,A-Z].*")|| valor.isEmpty())
-                {
-                    Tooltip nota = new Tooltip();
-                    nota.setText("Solo se aceptan letras");
-                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
-                    ColeccionDatos.noValido = false;
-                }
-                else {root_pane.setStyle("-fx-background-color: purple;"); ColeccionDatos.noValido = true;}
-            break;
-            }
-            if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
-            ColeccionDatos.ValorItem = varValue_Handle.getText();
-            }
-            event.consume();
-        }
-    };
-    
-    mVarNameEventHandleMouseExit = new EventHandler <MouseEvent>()
-    {
-        @Override
-        public void handle(MouseEvent event)
-        {
-            String nombre = varName_Handle.getText();
-            if(!nombre.matches("[a-z,A-Z].*")|| nombre.isEmpty())
-                {
-                    ColeccionDatos.noValido = false;
-                    Tooltip nota = new Tooltip();
-                    nota.setText("Solo se aceptan letras");
-                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
-
-                }
-                else 
-                {
-                switch(mType){
-        
-                    case Entero:
-                    root_pane.setStyle("-fx-background-color: blue;"); 
-                    break;
-            
-                    case Flotante:
-                    root_pane.setStyle("-fx-background-color: red;"); 
-                    break;
-            
-                    case Doble:
-                    root_pane.setStyle("-fx-background-color: grey;"); 
-                    break;
-            
-                    case Texto:
-                    root_pane.setStyle("-fx-background-color: yellow;"); 
-                    break;
-        
-                    case Leer:
-                    root_pane.setStyle("-fx-background-color: green;"); 
-                    break;
-        
-                    case Mostrar:
-                    root_pane.setStyle("-fx-background-color: purple;"); 
-                    break;
-                }
-                    ColeccionDatos.noValido = true;
-                }
-            if (!ColeccionDatos.NombreItem.equals(nombre)){           
-            ColeccionDatos.NombreItem = varName_Handle.getText();
-            }
-            event.consume();
-        }
-    };
-    
+ 
 //    mAddBtnEventHandleMouseClicked = new EventHandler <MouseEvent>()
 //    {
 //        @Override
