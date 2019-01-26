@@ -1,21 +1,22 @@
 package CGenerator;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Copilador
-{
-    GeneradorArchivo archivo = new GeneradorArchivo();
+{    
     ArrayList<String> imports = new ArrayList<>();
     ArrayList<String> comandos = new ArrayList<>();
    
     
-    public void RecuperarDatos(ArrayList<DataCollector> data)
+    public void RecuperarDatos(ArrayList<DataCollector> data) throws IOException
     {
         for (DataCollector Data: data)
         {
-             GenerarComando(Data);
+            GenerarComando(Data);
         }
-        archivo.CrearArchivo(comandos,imports);
+        PreCodeDisplay code = new PreCodeDisplay();
+        code.WriteText(comandos, imports);
 
     }
     

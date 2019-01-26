@@ -5,6 +5,7 @@
 ///////////////////////////////////////////////////////////////
 package CGenerator;
 
+import Display.RootLayout;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -16,18 +17,16 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
 
 public class GeneradorArchivo {
-
     
     
 public void CrearArchivoError(String Error,String Ubicacion)
 {
     String hora,fecha,Espacio;
-    File f=new File("C:\\Users\\Errot\\Documents\\P-G-C-A-B\\Error_log.txt");
+    File f=new File("/P-G-C-A-B/Error_log.txt");
      Date date = new Date();
     //Caso 1: obtener la hora y salida por pantalla con formato:
     DateFormat hourFormat = new SimpleDateFormat("HH:mm:ss");
@@ -62,9 +61,8 @@ public void CrearArchivo(ArrayList<String> texto,ArrayList<String> imports) {
 FileChooser chooser = new FileChooser();
 chooser.setTitle("Choose location To Save Report");
 File selectedFile = null;
-while(selectedFile== null){
-    selectedFile = chooser.showSaveDialog(null);
-}
+selectedFile = chooser.showSaveDialog(null);
+if (selectedFile != null){
 String nombre = selectedFile.getName();
 String nombreClass = nombre.substring(0, nombre.indexOf("."));
 nombreClass.trim();
@@ -97,6 +95,12 @@ catch(FileNotFoundException e){
 catch(IOException e){
  System.out.println("Error al escribir");
 } 
+}else
+{
+    RootLayout base = new RootLayout();
+    base.WriteTextOutput("Se cancelo el codigo");
 }
+}
+
     
 }
