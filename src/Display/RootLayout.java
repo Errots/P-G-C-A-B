@@ -1,9 +1,14 @@
 package Display;
 
+import CGenerator.FolderSistem;
 import CGenerator.Copilador;
 import CGenerator.DataCollector;
+import Configurations.ConfigurationData;
+import Configurations.ProyectConfigurator;
+import Executables.EjecutarArchivo;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
@@ -14,6 +19,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
@@ -31,18 +37,31 @@ public class RootLayout extends AnchorPane {
     @FXML SplitPane base_pane;
     @FXML AnchorPane right_pane;
     @FXML VBox left_pane;
+    @FXML MenuItem OpenProyect_Handle;
     @FXML MenuItem GenerateCode_Handle;
     @FXML TextArea Output_Handle;
     @FXML ImageView Generator_Handle;
+    @FXML ImageView NewProyect_Handle;
+    @FXML ScrollPane Dropzone_handle;
+    @FXML ImageView Execute_Handle;
+    @FXML MenuItem SaveProyect_Handle;
 
     private Iconos mDragOverIcon = null;
     private EventHandler mIconDragOverRoot=null;
     private EventHandler mIconDragDropped=null;
     private EventHandler mIconDragOverRightPane=null;
     private EventHandler mMenuItemActionEvent=null;
+    private EventHandler mOpenProyectActionEvent=null;
     private EventHandler mGeneradorMouseEvent=null;
+    private EventHandler mNewProyectMouseEvent=null;
+    private EventHandler mSaveProyectActionEvent=null;
+    private EventHandler mExecuteMouseEvent=null;
     
-    private ArrayList<String> NodesIds = new ArrayList<String>();
+    private  ArrayList<String> NodesIds = new ArrayList<String>();
+    
+    private String ProyectPath = null;
+    
+    private String MainFile = null;
     
     private ArrayList<DataCollector> ColeccionDatos = new ArrayList<>();
     
@@ -77,7 +96,11 @@ public class RootLayout extends AnchorPane {
     
     buildMouseEventHandle();
     GenerateCode_Handle.setOnAction(mMenuItemActionEvent);
+    OpenProyect_Handle.setOnAction(mOpenProyectActionEvent);
     Generator_Handle.setOnMouseClicked(mGeneradorMouseEvent);
+    NewProyect_Handle.setOnMouseClicked(mNewProyectMouseEvent);
+    SaveProyect_Handle.setOnAction(mSaveProyectActionEvent);
+    Execute_Handle.setOnMouseClicked(mExecuteMouseEvent);
     
 
     
@@ -96,12 +119,12 @@ public class RootLayout extends AnchorPane {
 
     
     private void addDragDetection(Iconos dragIcon) {
-		
        dragIcon.setOnDragDetected (new EventHandler <MouseEvent> () {
 
 	@Override
 	public void handle(MouseEvent event) {
 
+            if (!Dropzone_handle.disableProperty().getValue()) {
             // set the other drag event handles on their respective objects
             base_pane.setOnDragOver(mIconDragOverRoot);
             right_pane.setOnDragOver(mIconDragOverRightPane);
@@ -110,7 +133,7 @@ public class RootLayout extends AnchorPane {
             // get a reference to the clicked DragIcon object
             Iconos icn = (Iconos) event.getSource();
 
-             //begin drag ops
+            //begin drag ops
             mDragOverIcon.setType(icn.getType());
             mDragOverIcon.relocateToPoint(new Point2D (event.getSceneX(), event.getSceneY()));
 
@@ -123,14 +146,15 @@ public class RootLayout extends AnchorPane {
             mDragOverIcon.startDragAndDrop (TransferMode.ANY).setContent(content);
             mDragOverIcon.setVisible(true);
             mDragOverIcon.setMouseTransparent(true);
+            }
             event.consume();					
             }
         });
     }	
     
     private void buildDragHandlers() {
+       
         
-    //drag over transition to move widget form left pane to right pane
     mIconDragOverRoot = new EventHandler <DragEvent>() {
 
         @Override
@@ -243,6 +267,8 @@ public class RootLayout extends AnchorPane {
                         
         if (source != null && target != null){
             DataCollector data = source.getDataCollector();
+            data.NombreItem = "";
+            source.AddChild(targetId);
             target.setDataCollector(data);
             target.ValueDisable(true);
             link.bindEnds(source, target);
@@ -250,36 +276,64 @@ public class RootLayout extends AnchorPane {
     }
     }
             event.consume();
-        }   
+        }  
+                
     });
+    
     }
     
     private void buildMouseEventHandle()
     {
+        mNewProyectMouseEvent = new EventHandler <MouseEvent>()
+        {
+            @Override
+            public void handle(MouseEvent event)
+            {
+                FolderSistem directori = new FolderSistem();
+                directori.FolderSistem();
+                        
+                event.consume();
+            }
+        };
+        
         mGeneradorMouseEvent = new EventHandler <MouseEvent>()
         {
             @Override
             public void handle(MouseEvent event)
             {
+                ColeccionDatos.clear();
                 Copilador copiler = new Copilador();
-                int i =0;
+                ArrayList<Double> positions = new ArrayList<Double>();
                 boolean Correcto = true;
                 for(Node n: right_pane.getChildren())
                 {
-                    if(NodesIds.get(i).equals(n.getId()))
-                    {
-                        IconDrag Icn =  (IconDrag)n;
-                        DataCollector drag = Icn.getDataCollector();
-                        if(drag.noValido == false){Correcto = false;}
-                        ColeccionDatos.add(Icn.getDataCollector());
-                        i++;  
-                    }
+                    for (int j = 0; j < NodesIds.size(); j++) {
+                        if(NodesIds.get(j).equals(n.getId()))
+                        {
+                            IconDrag Icn =  (IconDrag)n;
+                            DataCollector drag = Icn.getDataCollector();
+                            if(drag.noValido == false){Correcto = false;}
+                            ColeccionDatos.add(Icn.getDataCollector());
+                        }   
+                    } 
                     
                 }
+                Collections.sort(positions);
                 if(!ColeccionDatos.isEmpty() && Correcto == true) try {
+                    for (int j = 0; j<ColeccionDatos.size(); j++) {
+                        for (int E = 0; E<positions.size(); E++) {
+                            if (ColeccionDatos.get(j).positionX == positions.get(E)) {
+                                DataCollector Dato = ColeccionDatos.get(E);
+                                ColeccionDatos.set(E, ColeccionDatos.get(j));
+                                ColeccionDatos.set(j, Dato);
+                            }
+                        }
+                    }
                     copiler.RecuperarDatos(ColeccionDatos);
-                } catch (IOException ex) {
+                    WriteTextOutput("Copilacion correcta");
+                } catch (Exception ex) {
                     Logger.getLogger(RootLayout.class.getName()).log(Level.SEVERE, null, ex);
+                    WriteTextOutput(ex.getMessage());
                 }
                 event.consume();
             }
@@ -290,32 +344,155 @@ public class RootLayout extends AnchorPane {
             public void handle(ActionEvent event)
             {
                 Copilador copiler = new Copilador();
-                int i =0;
+                ColeccionDatos.clear();
                 boolean Correcto = true;
                 for(Node n: right_pane.getChildren())
                 {
-                    if(NodesIds.get(i).equals(n.getId()))
-                    {
-                        IconDrag Icn =  (IconDrag)n;
-                        DataCollector drag = Icn.getDataCollector();
-                        if(drag.noValido == false){Correcto = false;}
-                        ColeccionDatos.add(Icn.getDataCollector());
-                        i++;  
-                    }
+                    for (int j = 0; j < NodesIds.size(); j++) {
+                        if(NodesIds.get(j).equals(n.getId()))
+                        {
+                            IconDrag Icn =  (IconDrag)n;
+                            DataCollector drag = Icn.getDataCollector();
+                            if(drag.noValido == false){Correcto = false;}
+                            ColeccionDatos.add(Icn.getDataCollector());
+                        }   
+                    } 
                     
                 }
                 if(!ColeccionDatos.isEmpty() && Correcto == true) try {
                     copiler.RecuperarDatos(ColeccionDatos);
-                } catch (IOException ex) {
+                    WriteTextOutput("Copilacion correcta");
+                } catch (Exception ex) {
                     Logger.getLogger(RootLayout.class.getName()).log(Level.SEVERE, null, ex);
+                    WriteTextOutput(ex.getMessage());
+                }
+                event.consume();
+            }
+        };
+        
+        
+        mOpenProyectActionEvent = new EventHandler <ActionEvent>()
+        {
+            @Override
+            public void handle(ActionEvent event)
+            {
+                ProyectConfigurator configure = new ProyectConfigurator();
+                ConfigurationData collector =  configure.OpenProyect();
+                MainFile = collector.MainFile;
+                ProyectPath = collector.ProyectPath;
+                ColeccionDatos = collector.ColeccionDatos;
+                NodesIds = collector.NodesIds;
+                Dropzone_handle.setDisable(false);
+                
+                for (DataCollector ColeccionDato : collector.ColeccionDatos) {
+                    IconDrag node = new IconDrag();
+
+                    node.setType(TiposdeIconos.valueOf(ColeccionDato.TipoItem));
+                    right_pane.getChildren().add(node);
+                    NodesIds.add(node.getId());
+
+                    node.setDataCollector(ColeccionDato);
+                }
+                
+                event.consume();
+            }
+        };
+        
+        mSaveProyectActionEvent = new EventHandler <ActionEvent>()
+        {
+            @Override
+            public void handle(ActionEvent event)
+            {
+                ConfigurationData data = new ConfigurationData();
+                data.ColeccionDatos = ColeccionDatos;
+                data.MainFile = MainFile;
+                data.NodesIds = NodesIds;
+                data.ProyectPath = ProyectPath;
+                ProyectConfigurator config = new ProyectConfigurator();
+                config.SaveProyect(data);
+                
+                event.consume();
+            }
+        };
+        
+        mExecuteMouseEvent = new EventHandler <MouseEvent>()
+        {
+            @Override
+            public void handle(MouseEvent event)
+            {
+                Copilador copiler = new Copilador();
+                ColeccionDatos.clear();
+                boolean Correcto = true;
+                for(Node n: right_pane.getChildren())
+                {
+                    for (int j = 0; j < NodesIds.size(); j++) {
+                        if(NodesIds.get(j).equals(n.getId()))
+                        {
+                            IconDrag Icn =  (IconDrag)n;
+                            DataCollector drag = Icn.getDataCollector();
+                            if(drag.noValido == false){Correcto = false;}
+                            ColeccionDatos.add(Icn.getDataCollector());
+                        }   
+                    }   
+                }
+                if(!ColeccionDatos.isEmpty() && Correcto == true) try {
+                    boolean next = copiler.EjecutarDatos(ColeccionDatos,ProyectPath);
+                    if (next) {
+                        WriteTextOutput("Copilacion correcta");
+                        WriteTextOutput("Executando archivo");
+                    }
+                 } catch (Exception ex) {
+                    Logger.getLogger(RootLayout.class.getName()).log(Level.SEVERE, null, ex);
+                    WriteTextOutput(ex.getMessage());
                 }
                 event.consume();
             }
         };
     }
 
+    public void RemoveNode(String id)
+    {
+        NodesIds.remove(id);
+    }
+    
+    public void SetNodeEnable(String id)
+    {
+        int i =0;
+        for(Node n: right_pane.getChildren())
+        {
+            if(NodesIds.get(i).equals(id))
+            {
+                IconDrag Icn =  (IconDrag)n;
+                Icn.setDisable(true);
+                i++;  
+            }
+
+        }
+    }
+    
+    
+    
+    public String GetPath()
+    {
+        return ProyectPath;
+    }
+    
+    public void SavePath(String path)
+    {
+        if (!path.isEmpty()) {
+            Dropzone_handle.setDisable(false);
+            ProyectPath = path;
+        } 
+    }
+    
+    public void SaveMainFile(String path)
+    {
+        MainFile = path;
+    }
+    
     public void WriteTextOutput(String texto)
     {
         Output_Handle.appendText(texto+"\n");
     }
 }
+

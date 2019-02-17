@@ -1,6 +1,8 @@
 package CGenerator;
 
+import Display.TiposdeIconos;
 import java.util.ArrayList;
+import java.util.List;
 
 public class DataCollector {
     public String Id = "";
@@ -8,8 +10,12 @@ public class DataCollector {
     public String TipoItem = "";
     public String ValorItem = "";
     public String Id2 = "";
-    public ArrayList<String> Textos;
+    public ArrayList<String> Textos = new ArrayList <String> ();
     public boolean noValido = true;
+    public double positionX = 0.00;
+    public double positionY = 0.00;
+    public List<String> mLinkIds = new ArrayList <String> ();
+    public List<String> ChildIds = new ArrayList <String> ();
 }
 
 

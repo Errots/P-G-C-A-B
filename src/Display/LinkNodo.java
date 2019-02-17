@@ -15,6 +15,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
@@ -111,18 +112,34 @@ public void setEnd(Point2D endPoint) {
 
 public void bindEnds (IconDrag source, IconDrag target) {
     
+    Circle CSource = null;
+    Circle CTarget = null;
+    VBox SBox= (VBox) source.getChildren().get(0);
+    GridPane Pane = (GridPane) SBox.getChildren().get(0);
+    CSource = (Circle) Pane.getChildren().get(0);
+    VBox TBox= (VBox) target.getChildren().get(0);
+    VBox TVbox = (VBox) TBox.getChildren().get(1);
+    GridPane TPane= null;
+    for (Node n : TVbox.getChildren()) {
+        if (n instanceof GridPane) {
+            TPane = (GridPane) n;
+        }
+    }
+    if (TPane != null) {
+        CTarget = (Circle) TPane.getChildren().get(0);
+    }
     
     node_link.startXProperty().bind(
-        Bindings.add(source.layoutXProperty(), (source.getWidth()/ 2.0)));
+        Bindings.add(source.layoutXProperty(), CSource.getLayoutX()));
         
     node_link.startYProperty().bind(
-        Bindings.add(source.layoutYProperty(), (source.getWidth() / 2.0)));
+        Bindings.add(source.layoutYProperty(), CSource.getLayoutY() ));
         
     node_link.endXProperty().bind(
-        Bindings.add(target.layoutXProperty(), (target.getWidth() / 2.0)));
+        Bindings.add(target.layoutXProperty(), CTarget.getLayoutX()));
         
     node_link.endYProperty().bind(
-        Bindings.add(target.layoutYProperty(), (target.getWidth() / 2.0)));
+        Bindings.add(target.layoutYProperty(), (TPane.getLayoutY()+40)));
     
     source.registerLink (getId());
     target.registerLink (getId());

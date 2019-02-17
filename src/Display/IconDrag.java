@@ -1,7 +1,8 @@
 package Display;
 
-
+import Display.RootLayout;
 import CGenerator.*;
+import Configurations.ConfigurationData;
 import java.io.IOException;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -49,18 +51,21 @@ public class IconDrag extends AnchorPane{
     private LinkNodo mDragLink = null;
     private AnchorPane right_pane = null;
 
-    private EventHandler <MouseEvent> mLinkHandleDragDetected;
+    private EventHandler <MouseEvent> mLeftLinkHandleDragDetected;
+    private EventHandler <MouseEvent> mRightLinkHandleDragDetected;
     private EventHandler <MouseEvent> mVarNameEventHandleMouseExit;
     private EventHandler <MouseEvent> mVarValueEventHandleMouseExit;
     private EventHandler <MouseEvent> mAddBtnEventHandleMouseClicked;
-    private EventHandler <DragEvent> mLinkHandleDragDropped;
+    private EventHandler <DragEvent> mLeftLinkHandleDragDropped;
+    private EventHandler <DragEvent> mRightLinkHandleDragDropped;
     private EventHandler <DragEvent> mContextLinkDragOver;  
     private EventHandler <DragEvent> mContextLinkDragDropped;		
     private EventHandler <DragEvent> mContextDragOver;
     private EventHandler <DragEvent> mContextDragDropped;   
     Timer timer = new Timer();
 
-    private final List <String> mLinkIds = new ArrayList <String> ();
+    private final List<String> mLinkIds = new ArrayList <String> ();
+    private final List<String> ChildIds = new ArrayList <String> ();
     
     private DataCollector ColeccionDatos = new DataCollector();
     
@@ -68,6 +73,8 @@ public class IconDrag extends AnchorPane{
     
     private Point2D mDragOffset = new Point2D(0.0, 0.0);
         
+    private RootLayout Root;
+    
     private final IconDrag self;
     boolean NameX = false;
     boolean ValX = false;
@@ -79,7 +86,7 @@ public class IconDrag extends AnchorPane{
         
     fxmlLoader.setRoot(this); 
     fxmlLoader.setController(this);
-     self = this;   
+    self = this;   
     try { 
     fxmlLoader.load();
         
@@ -96,10 +103,10 @@ private void initialize()
     buildNodeDragHandlers();
     buildLinkDragHandlers();
     addBtn_Handle.setOnMouseClicked(mAddBtnEventHandleMouseClicked);
-    endLink_Handle.setOnDragDetected(mLinkHandleDragDetected);
-    startLink_Handle.setOnDragDetected(mLinkHandleDragDetected);
-    endLink_Handle.setOnDragDropped(mLinkHandleDragDropped);
-    startLink_Handle.setOnDragDropped(mLinkHandleDragDropped);
+    endLink_Handle.setOnDragDetected(mLeftLinkHandleDragDetected);
+    startLink_Handle.setOnDragDetected(mRightLinkHandleDragDetected);
+    endLink_Handle.setOnDragDropped(mLeftLinkHandleDragDropped);
+    startLink_Handle.setOnDragDropped(mRightLinkHandleDragDropped);
     mDragLink = new LinkNodo();
     mDragLink.setVisible(false);
     parentProperty().addListener(new ChangeListener() {
@@ -119,11 +126,21 @@ timer.scheduleAtFixedRate(new TimerTask() {
     String nombre = varName_Handle.getText();
             if(!nombre.matches("[a-z,A-Z].*")|| nombre.isEmpty())
                 {
-                    ColeccionDatos.noValido = false;
+                    
+                    switch(mType)
+                    {
+                    case Mostrar:
+                        NameX = true;
+                    break;
+                        
+                    default:ColeccionDatos.noValido = false;
                     Tooltip nota = new Tooltip();
                     nota.setText("Solo se aceptan letras");
                     root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
                     NameX = false;
+                        break;
+                    }
+                    
                 }
                 else 
                 {
@@ -133,7 +150,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
             ColeccionDatos.NombreItem = varName_Handle.getText();
             }
   }
-}, 10000, 10000);    
+}, 4000, 4000);    
     
 timer.scheduleAtFixedRate(new TimerTask() {
   @Override
@@ -142,7 +159,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
             switch(mType)
             {
             case Entero:
-                if(!valor.matches("[0-9].*")|| valor.isEmpty())
+                if(!valor.matches("[0-9]*[^.]")|| valor.isEmpty())
                 {
                     Tooltip nota = new Tooltip();
                     nota.setText("Solo se aceptan numeros enteros");
@@ -154,7 +171,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
             break;
             
             case Flotante:
-                if(!valor.matches("[-]?[0-9]*\\\\.?[0-9]+")|| valor.isEmpty())
+                if(!valor.matches("[-]?[0-9]*\\.*")|| valor.isEmpty())
                 {
                     Tooltip nota = new Tooltip();
                     nota.setText("Solo se aceptan numeros decimales");
@@ -162,11 +179,11 @@ timer.scheduleAtFixedRate(new TimerTask() {
                     ColeccionDatos.noValido = false;
                     ValX = false;
                 }
-                else {ValX = true;}
+                else {   ValX = true;}
             break;
             
             case Doble:
-                if(!valor.matches("[-]?[0-9]*\\\\.?[0-9]+")|| valor.isEmpty())
+                if(!valor.matches("[-]?[0-9]*\\.?")|| valor.isEmpty())
                 {
                     Tooltip nota = new Tooltip();
                     nota.setText("Solo se aceptan numeros decimales");
@@ -178,7 +195,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
             break;
             
             case Texto:
-                if(!valor.matches("[a-z,A-Z].*")|| valor.isEmpty())
+                if(!valor.matches("[a-zA-Z][-]?[0-9]*\\.?")|| valor.isEmpty())
                 {
                     Tooltip nota = new Tooltip();
                     nota.setText("Solo se aceptan letras");
@@ -190,7 +207,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
             break;
         
             case Mostrar:
-                if(!valor.matches("[a-z,A-Z].*")|| valor.isEmpty())
+                if(!valor.matches("[0-9]*[a-zA-Z]*[.]*")|| valor.isEmpty())
                 {
                     Tooltip nota = new Tooltip();
                     nota.setText("Solo se aceptan letras");
@@ -203,11 +220,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
             }
             if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
             ColeccionDatos.ValorItem = varValue_Handle.getText();
-            }
-    }
-}, 10000, 10000);
-
-    if (ValX && NameX) {
+            }if (ValX && NameX) {
         switch(mType){
         
                     case Entero:
@@ -235,11 +248,21 @@ timer.scheduleAtFixedRate(new TimerTask() {
                     break;
                 }
                     ColeccionDatos.noValido = true;
+                    ColeccionDatos.positionX = getLayoutX();
+                    ColeccionDatos.positionY = getLayoutY();
     }
+    }
+}, 4000, 4000);
+
+    
 }
 
 public void registerLink(String linkId) {
     mLinkIds.add(linkId);
+}
+
+public void AddChild(String Id) {
+    ChildIds.add(Id);
 }
 
 public void relocateToPoint (Point2D p) {
@@ -273,8 +296,22 @@ public TiposdeIconos getType(){return mType;}
 public void ValueDisable(boolean disable){varValue_Handle.setDisable(disable); }
 public void setDataCollector(DataCollector data)
 {
+    if (!data.NombreItem.isEmpty()&&data.positionX !=0.00 && data.positionY != 0.00) {
+        setLayoutX(data.positionX);
+        setLayoutY(data.positionY);
+        ColeccionDatos.NombreItem = data.NombreItem;
+        varName_Handle.setText(data.NombreItem);
+        ColeccionDatos.Id = data.Id;
+        ColeccionDatos.Id2 = data.Id2;
+        ColeccionDatos.Textos = data.Textos;
+        ChildIds.addAll(data.ChildIds);
+        mLinkIds.addAll(data.mLinkIds);
+        
+    }
+    ColeccionDatos.noValido = data.noValido;
     ColeccionDatos.ValorItem = data.ValorItem;
     varValue_Handle.setText(data.ValorItem);
+    
 }
 public DataCollector getDataCollector(){return ColeccionDatos;}
     
@@ -379,8 +416,11 @@ public void buildNodeDragHandlers() {
      public void handle(MouseEvent event) {
      AnchorPane parent  = (AnchorPane) self.getParent();
      parent.getChildren().remove(self);
-
+     
     
+    ChildIds.stream().forEach((id) -> {
+        Root.SetNodeEnable(id);
+    });
       for (ListIterator  iterId = mLinkIds.listIterator(); 
             iterId.hasNext();) {
                         
@@ -440,7 +480,7 @@ public void buildNodeDragHandlers() {
     
 private void buildLinkDragHandlers() {
 			
-mLinkHandleDragDetected = new EventHandler <MouseEvent> () {
+mRightLinkHandleDragDetected = new EventHandler <MouseEvent> () {
 
     @Override
     public void handle(MouseEvent event) {
@@ -456,9 +496,14 @@ mLinkHandleDragDetected = new EventHandler <MouseEvent> () {
                     
     mDragLink.setVisible(false);
 
+    Circle CSource = null;
+    VBox SBox= (VBox) getChildren().get(0);
+    GridPane Pane = (GridPane) SBox.getChildren().get(0);
+    CSource = (Circle) Pane.getChildren().get(0);
+    
     Point2D p = new Point2D(
-    getLayoutX() + (getWidth() / 2.0),
-    getLayoutY() + (getHeight() / 2.0)
+    getLayoutX() + CSource.getLayoutX(),
+    getLayoutY() + CSource.getLayoutY()
     );
 
     mDragLink.setStart(p);                  
@@ -475,8 +520,89 @@ mLinkHandleDragDetected = new EventHandler <MouseEvent> () {
     event.consume();
     }
 };
+mLeftLinkHandleDragDetected = new EventHandler <MouseEvent> () {
 
-mLinkHandleDragDropped = new EventHandler <DragEvent> () {
+    @Override
+    public void handle(MouseEvent event) {
+                    
+    getParent().setOnDragOver(null);
+    getParent().setOnDragDropped(null);
+                    
+    getParent().setOnDragOver(mContextLinkDragOver);
+    getParent().setOnDragDropped(mContextLinkDragDropped);
+                    
+    //Set up user-draggable link
+    right_pane.getChildren().add(0,mDragLink);                  
+                    
+    mDragLink.setVisible(false);
+
+    Circle CSource = null;
+    VBox SBox= (VBox) getChildren().get(0);
+    VBox TVbox = (VBox) SBox.getChildren().get(1);
+    GridPane TPane= null;
+    for (Node n : TVbox.getChildren()) {
+        if (n instanceof GridPane) {
+            TPane = (GridPane) n;
+        }
+    }
+    if (TPane != null) {
+        CSource = (Circle) TPane.getChildren().get(0);
+    }
+    
+    Point2D p = new Point2D(
+    getLayoutX() + CSource.getLayoutX(),
+    getLayoutY() + (TPane.getLayoutY()+40)
+    );
+
+    mDragLink.setStart(p);                  
+                    
+    //Drag content code
+    ClipboardContent content = new ClipboardContent();
+    Contenedor container = new Contenedor ();
+                    
+    container.addData("target", getId());
+    content.put(Contenedor.AddLink, container);
+                
+    startDragAndDrop (TransferMode.ANY).setContent(content);    
+
+    event.consume();
+    }
+};
+
+mRightLinkHandleDragDropped = new EventHandler <DragEvent> () {
+
+	@Override
+	public void handle(DragEvent event) {
+
+	getParent().setOnDragOver(null);
+	getParent().setOnDragDropped(null);
+										
+	//get the drag data.  If it's null, abort.  
+	//This isn't the drag event we're looking for.
+	Contenedor container = (Contenedor) event.getDragboard().getContent(Contenedor.AddLink);
+								
+	if (container == null)return;
+
+	//hide the draggable NodeLink and remove it from the right-hand AnchorPane's children
+	mDragLink.setVisible(false);
+	right_pane.getChildren().remove(0);
+					
+	Circle link_handle = (Circle) event.getSource();
+					
+	ClipboardContent content = new ClipboardContent();
+					
+	//pass the UUID of the target node for later lookup
+	container.addData("source", getId());
+					
+	content.put(Contenedor.AddLink, container);
+					
+	event.getDragboard().setContent(content);
+	event.setDropCompleted(true);
+	event.consume();				
+	}
+	};
+
+mLeftLinkHandleDragDropped = new EventHandler <DragEvent> () {
 
 	@Override
 	public void handle(DragEvent event) {
@@ -546,5 +672,6 @@ mLinkHandleDragDropped = new EventHandler <DragEvent> () {
 	};
 			
 }
+
     
 }

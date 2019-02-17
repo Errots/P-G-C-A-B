@@ -1,10 +1,11 @@
 package Executables;
 
+import Display.RootLayout;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class EjecutarArchivo {
+public class EjecutarArchivo extends RootLayout{
     
     private static void printLines(String name, InputStream ins) throws Exception {
     String line = null;
@@ -15,23 +16,39 @@ public class EjecutarArchivo {
     }
   }
 
-  private static void runProcess(String command) throws Exception {
+  private void runProcess(String command) throws Exception {
     Process pro = Runtime.getRuntime().exec(command);
     printLines(command + " stdout:", pro.getInputStream());
     printLines(command + " stderr:", pro.getErrorStream());
+    WriteTextOutput(pro.getInputStream().toString());
+    WriteTextOutput(pro.getErrorStream().toString());
+    
     pro.waitFor();
     System.out.println(command + " exitValue() " + pro.exitValue());
   }
-
-  public static void main(String[] args) {
+  
+  public void Execute(String FilePath, String ProyectPath)
+  {
+      String FileName = FilePath.substring(FilePath.lastIndexOf("\\")+1);
     try {
-      runProcess("javac -cp C:\\Users\\Errot\\Desktop\\ texto.java");
+      runProcess("javac -d "+ProyectPath+"\\Build "+FilePath);
    
-      runProcess("java -cp C:\\Users\\Errot\\Desktop\\ texto");
+      runProcess("java -cp " +ProyectPath+"\\Build "+FileName.replaceAll(".java", ""));
     } catch (Exception e) {
+      WriteTextOutput(e.getMessage());
       e.printStackTrace();
     }
   }
+
+//  public static void main(String[] args) {
+//    try {
+//      runProcess("javac -cp C:\\Users\\Errot\\Desktop\\ texto.java");
+//   
+//      runProcess("java -cp C:\\Users\\Errot\\Desktop\\ texto");
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//    }
+//  }
 
 }
 

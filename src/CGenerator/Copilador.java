@@ -2,6 +2,7 @@ package CGenerator;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import static java.util.Collections.sort;
 
 public class Copilador
 {    
@@ -9,14 +10,31 @@ public class Copilador
     ArrayList<String> comandos = new ArrayList<>();
    
     
-    public void RecuperarDatos(ArrayList<DataCollector> data) throws IOException
+    public boolean RecuperarDatos(ArrayList<DataCollector> data) 
     {
+        try{
         for (DataCollector Data: data)
         {
             GenerarComando(Data);
         }
         PreCodeDisplay code = new PreCodeDisplay();
         code.WriteText(comandos, imports);
+        return true;
+        }catch(Exception e){System.out.println(e.getMessage());return false;}
+
+    }
+    
+    public boolean EjecutarDatos(ArrayList<DataCollector> data,String path) 
+    {
+        try{
+        for (DataCollector Data: data)
+        {
+            GenerarComando(Data);
+        }
+        GeneradorArchivo Gene = new GeneradorArchivo();
+        Gene.ExecutarArchivo(comandos, imports, path);
+        return true;
+        }catch(Exception e){System.out.println(e.getMessage());return false;}
 
     }
     

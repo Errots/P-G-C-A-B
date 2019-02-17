@@ -1,11 +1,7 @@
-///////////////////////////////////////////////////////////////
-//*  Author: Angel Alexis Nolasco Acosta                    ///
-//*  Este codigo genera un archivo en la ruta seleccionada  ///
-//*                                                         ///
-///////////////////////////////////////////////////////////////
 package CGenerator;
 
 import Display.RootLayout;
+import Executables.EjecutarArchivo;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -20,7 +16,7 @@ import java.util.Date;
 import javafx.stage.FileChooser;
 
 
-public class GeneradorArchivo {
+public class GeneradorArchivo extends RootLayout{
     
     
 public void CrearArchivoError(String Error,String Ubicacion)
@@ -59,7 +55,8 @@ catch(IOException e){
 
 public void CrearArchivo(ArrayList<String> texto,ArrayList<String> imports) {
 FileChooser chooser = new FileChooser();
-chooser.setTitle("Choose location To Save Report");
+chooser.setTitle("Selecciones donde guardar");
+chooser.setInitialDirectory(new java.io.File(super.GetPath()));
 File selectedFile = null;
 selectedFile = chooser.showSaveDialog(null);
 if (selectedFile != null){
@@ -85,6 +82,9 @@ try{
         }
         dos.write(Final);
         dos.close();
+//        synchronized (RootLayout.this) { RootLayout.this.notify(); }
+        super.SaveMainFile(selectedFile.getAbsolutePath());
+        super.WriteTextOutput("Codigo guardado con exito");
     }
 }
 catch(FileNotFoundException e){
@@ -97,10 +97,58 @@ catch(IOException e){
 } 
 }else
 {
-    RootLayout base = new RootLayout();
-    base.WriteTextOutput("Se cancelo el codigo");
+    super.WriteTextOutput("Se cancelo el codigo");
 }
 }
 
+public void ExecutarArchivo(ArrayList<String> texto,ArrayList<String> imports,String Path) {
+FileChooser chooser = new FileChooser();
+chooser.setTitle("Selecciones donde guardar");
+chooser.setInitialDirectory(new java.io.File(Path));
+File selectedFile = null;
+selectedFile = chooser.showSaveDialog(null);
+if (selectedFile != null){
+String nombre = selectedFile.getName();
+String nombreClass = nombre.substring(0, nombre.indexOf("."));
+nombreClass.trim();
+GeneradorArchivo java = new GeneradorArchivo();
+        
+try{
+    try (FileOutputStream fis = new FileOutputStream(selectedFile);BufferedWriter  dos = new BufferedWriter(new OutputStreamWriter(fis))) {
+        for(String Item : imports)
+        {
+            dos.write(Item);
+            dos.newLine();
+        }
+        String Final = "}}";        
+        texto.add(0, "public static void main(String[] args){");
+        texto.add(0, "public class "+nombreClass+"{");
+        for(String Item : texto)
+        {
+            dos.write(Item);
+            dos.newLine();
+        }
+        dos.write(Final);
+        dos.close();
+//        synchronized (RootLayout.this) { RootLayout.this.notify(); }
+        super.SaveMainFile(selectedFile.getAbsolutePath());
+        super.WriteTextOutput("Codigo guardado con exito");
+        EjecutarArchivo exe= new EjecutarArchivo();
+        exe.Execute(selectedFile.getAbsolutePath(), Path);
+    }
+}
+catch(FileNotFoundException e){
+ System.out.println("No se encontro el archivo");
+ java.CrearArchivoError(e.getMessage(), "FileNotFoundException");
+ 
+}
+catch(IOException e){
+ System.out.println("Error al escribir");
+} 
+}else
+{
+    WriteTextOutput("Se cancelo el codigo");
+}
+}
     
 }

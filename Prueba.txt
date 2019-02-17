@@ -1,9 +1,0 @@
-import java.util.Scanner;
-public static void main(String[] args){
-public class Prueba.txt{
-Scanner leer = new Scanner(System.in);
-int variable = 1536;
-String etxtos =  "OWO";
-String Txto = leer.nextLine();
-System.out.println(OwO);
-}}

@@ -23,7 +23,9 @@
               <menus>
                 <Menu mnemonicParsing="false" text="File">
                   <items>
-                    <MenuItem mnemonicParsing="false" text="Close" />
+                        <MenuItem fx:id="OpenProyect_Handle" mnemonicParsing="false" text="Abrir proyecto" />
+                        <MenuItem fx:id="SaveProyect_Handle" mnemonicParsing="false" text="Guardar proyecto" />
+                    <MenuItem fx:id="Exit_Handle" mnemonicParsing="false" text="Cerrar" />
                   </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Generar">
@@ -31,16 +33,16 @@
                     <MenuItem fx:id="GenerateCode_Handle" mnemonicParsing="false" text="Codigo" />
                   </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Help">
-                  <items>
-                    <MenuItem mnemonicParsing="false" text="About" />
-                  </items>
-                </Menu>
                   <Menu mnemonicParsing="false" text="Ejecutar">
                     <items>
                       <MenuItem mnemonicParsing="false" text="Ejecutar Archivo" />
                     </items>
                   </Menu>
+                <Menu mnemonicParsing="false" text="Ayuda">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="About" />
+                  </items>
+                </Menu>
               </menus>
                <padding>
                   <Insets bottom="5.0" />
@@ -53,7 +55,7 @@
                         <Image url="@../Iconos/curly-brackets.png" />
                      </image>
                      <cursor>
-                        <Cursor fx:constant="OPEN_HAND" />
+                        <Cursor fx:constant="HAND" />
                      </cursor>
                   </ImageView>
                   <ImageView fx:id="NewFile_Handle" fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
@@ -61,7 +63,7 @@
                         <Image url="@../Iconos/add-new-document.png" />
                      </image>
                      <cursor>
-                        <Cursor fx:constant="OPEN_HAND" />
+                        <Cursor fx:constant="HAND" />
                      </cursor>
                   </ImageView>
                   <ImageView fx:id="NewProyect_Handle" fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
@@ -69,7 +71,7 @@
                         <Image url="@../Iconos/folder-with-plus-sign.png" />
                      </image>
                      <cursor>
-                        <Cursor fx:constant="OPEN_HAND" />
+                        <Cursor fx:constant="HAND" />
                      </cursor>
                   </ImageView>
                   <ImageView fx:id="Generator_Handle" fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
@@ -77,7 +79,7 @@
                         <Image url="@../Iconos/handyman-tools.png" />
                      </image>
                      <cursor>
-                        <Cursor fx:constant="OPEN_HAND" />
+                        <Cursor fx:constant="HAND" />
                      </cursor>
                   </ImageView>
                   <ImageView fx:id="Execute_Handle" fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
@@ -85,7 +87,7 @@
                         <Image url="@../Iconos/play-button.png" />
                      </image>
                      <cursor>
-                        <Cursor fx:constant="OPEN_HAND" />
+                        <Cursor fx:constant="HAND" />
                      </cursor>
                   </ImageView>
                </children>
@@ -105,7 +107,7 @@
                               <VBox fx:id="left_pane" spacing="10.0" />
                            </content>
                         </ScrollPane>
-                        <ScrollPane vbarPolicy="NEVER">
+                        <ScrollPane fx:id="Dropzone_handle" disable="true" vbarPolicy="NEVER">
                            <content>
                             <AnchorPane fx:id="right_pane" prefHeight="200.0" prefWidth="1500.0" />
                            </content>

@@ -66,12 +66,12 @@
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
+                        <Circle fx:id="endLink_Handle" fill="WHITE" radius="10.0" stroke="BLACK" strokeType="INSIDE" />
                         <TextField fx:id="varValue_Handle" promptText="Valor" GridPane.columnIndex="1">
                            <GridPane.margin>
                               <Insets right="5.0" />
                            </GridPane.margin>
                         </TextField>
-                        <Circle fx:id="endLink_Handle" fill="WHITE" radius="10.0" stroke="BLACK" strokeType="INSIDE" />
                      </children>
                      <VBox.margin>
                         <Insets top="5.0" />
