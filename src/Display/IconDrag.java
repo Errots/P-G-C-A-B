@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -47,6 +49,7 @@ public class IconDrag extends AnchorPane{
     @FXML private TextField varName_Handle;
     @FXML private ImageView addBtn_Handle;
     @FXML private GridPane Inputs_Handle;
+    @FXML private GridPane TopGrid_Handle;
     
     private LinkNodo mDragLink = null;
     private AnchorPane right_pane = null;
@@ -78,10 +81,10 @@ public class IconDrag extends AnchorPane{
     private final IconDrag self;
     boolean NameX = false;
     boolean ValX = false;
-    public IconDrag() {
+    public IconDrag(ResourceBundle resourceBundle) {
     
     FXMLLoader fxmlLoader = new FXMLLoader(
-    getClass().getResource("/Display/FXMLs/IconoMovible.fxml")
+    getClass().getResource("/Display/FXMLs/IconoMovible.fxml"),resourceBundle
     );
         
     fxmlLoader.setRoot(this); 
@@ -136,7 +139,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
                     default:ColeccionDatos.noValido = false;
                     Tooltip nota = new Tooltip();
                     nota.setText("Solo se aceptan letras");
-                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+                    root_pane.setStyle("-fx-background-color:FF0000;");         
                     NameX = false;
                         break;
                     }
@@ -150,7 +153,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
             ColeccionDatos.NombreItem = varName_Handle.getText();
             }
   }
-}, 4000, 4000);    
+}, 3000, 3000);    
     
 timer.scheduleAtFixedRate(new TimerTask() {
   @Override
@@ -163,7 +166,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
                 {
                     Tooltip nota = new Tooltip();
                     nota.setText("Solo se aceptan numeros enteros");
-                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+                    root_pane.setStyle("-fx-background-color:red;");
                     ColeccionDatos.noValido = false;
                     ValX = false;
                 }
@@ -171,11 +174,11 @@ timer.scheduleAtFixedRate(new TimerTask() {
             break;
             
             case Flotante:
-                if(!valor.matches("[-]?[0-9]*\\.*")|| valor.isEmpty())
+                if(!valor.matches("[0-9]+\\.[0-9]+")|| valor.isEmpty())
                 {
                     Tooltip nota = new Tooltip();
                     nota.setText("Solo se aceptan numeros decimales");
-                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+                    root_pane.setStyle("-fx-background-color:red;");
                     ColeccionDatos.noValido = false;
                     ValX = false;
                 }
@@ -183,11 +186,11 @@ timer.scheduleAtFixedRate(new TimerTask() {
             break;
             
             case Doble:
-                if(!valor.matches("[-]?[0-9]*\\.?")|| valor.isEmpty())
+                if(!valor.matches("[0-9]+\\.[0-9]+")|| valor.isEmpty())
                 {
                     Tooltip nota = new Tooltip();
                     nota.setText("Solo se aceptan numeros decimales");
-                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+                    root_pane.setStyle("-fx-background-color:red;");
                     ColeccionDatos.noValido = false;
                     ValX = false;
                 }
@@ -195,11 +198,11 @@ timer.scheduleAtFixedRate(new TimerTask() {
             break;
             
             case Texto:
-                if(!valor.matches("[a-zA-Z][-]?[0-9]*\\.?")|| valor.isEmpty())
+                if(!valor.matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| valor.isEmpty())
                 {
                     Tooltip nota = new Tooltip();
                     nota.setText("Solo se aceptan letras");
-                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+                    root_pane.setStyle("-fx-background-color:red;");
                     ColeccionDatos.noValido = false;
                     ValX = false;
                 }
@@ -211,7 +214,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
                 {
                     Tooltip nota = new Tooltip();
                     nota.setText("Solo se aceptan letras");
-                    root_pane.setStyle("-fx-background-color:linear-gradient(to bottom, rgba(255, 45, 0,0.7) 15%, rgba(50,100,150,0.45) 100%);");
+                    root_pane.setStyle("-fx-background-color:red;");
                     ColeccionDatos.noValido = false;
                     ValX = false;
                 }
@@ -224,27 +227,27 @@ timer.scheduleAtFixedRate(new TimerTask() {
         switch(mType){
         
                     case Entero:
-                    root_pane.setStyle("-fx-background-color: blue;"); 
+                    root_pane.setStyle("-fx-background-color: lightgrey;"); 
                     break;
             
                     case Flotante:
-                    root_pane.setStyle("-fx-background-color: red;"); 
+                    root_pane.setStyle("-fx-background-color: lightgrey;"); 
                     break;
             
                     case Doble:
-                    root_pane.setStyle("-fx-background-color: grey;"); 
+                    root_pane.setStyle("-fx-background-color: lightgrey;"); 
                     break;
             
                     case Texto:
-                    root_pane.setStyle("-fx-background-color: yellow;"); 
+                    root_pane.setStyle("-fx-background-color: lightgrey;"); 
                     break;
         
                     case Leer:
-                    root_pane.setStyle("-fx-background-color: green;"); 
+                    root_pane.setStyle("-fx-background-color: lightgrey;"); 
                     break;
         
                     case Mostrar:
-                    root_pane.setStyle("-fx-background-color: purple;"); 
+                    root_pane.setStyle("-fx-background-color: lightgrey;"); 
                     break;
                 }
                     ColeccionDatos.noValido = true;
@@ -252,7 +255,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
                     ColeccionDatos.positionY = getLayoutY();
     }
     }
-}, 4000, 4000);
+}, 3000, 3000);
 
     
 }
@@ -315,7 +318,7 @@ public void setDataCollector(DataCollector data)
 }
 public DataCollector getDataCollector(){return ColeccionDatos;}
     
-public void setType(TiposdeIconos type){
+public void setType(TiposdeIconos type,ResourceBundle resourceBundle){
     mType = type;
     getStyleClass().clear();
     getStyleClass().add("dragicon");
@@ -324,44 +327,44 @@ public void setType(TiposdeIconos type){
         case Entero:
         ColeccionDatos.TipoItem = "Entero";
         ((VBox) addBtn_Handle.getParent()).getChildren().remove(addBtn_Handle);
-        title_bar.setText("Entero");
-        getStyleClass().add("icon-blue");
+        title_bar.setText(resourceBundle.getString("Entero"));
+        TopGrid_Handle.getStyleClass().add("icon-entero");
         break;
             
         case Flotante:
         ColeccionDatos.TipoItem = "Flotante";
         ((VBox) addBtn_Handle.getParent()).getChildren().remove(addBtn_Handle);
-        title_bar.setText("Flotante");
-        getStyleClass().add("icon-red");
+        title_bar.setText(resourceBundle.getString("Flotante"));
+        TopGrid_Handle.getStyleClass().add("icon-flotante");
         break;
             
         case Doble:
         ColeccionDatos.TipoItem = "Doble";        
         ((VBox) addBtn_Handle.getParent()).getChildren().remove(addBtn_Handle);
-        title_bar.setText("Doble");
-        getStyleClass().add("icon-grey");
+        title_bar.setText(resourceBundle.getString("Doble"));
+        TopGrid_Handle.getStyleClass().add("icon-doble");
         break;
             
         case Texto:
         ColeccionDatos.TipoItem = "Texto";
         addBtn_Handle.setVisible(true);
-        title_bar.setText("Texto");
-        getStyleClass().add("icon-yellow");
+        title_bar.setText(resourceBundle.getString("Texto"));
+        TopGrid_Handle.getStyleClass().add("icon-texto");
         break;
         
         case Leer:
         ColeccionDatos.TipoItem = "Leer";
         ((GridPane) endLink_Handle.getParent()).getChildren().remove(endLink_Handle);
         ((GridPane) varValue_Handle.getParent()).getChildren().remove(varValue_Handle);
-        title_bar.setText("Leer");
-        getStyleClass().add("icon-green");
+        title_bar.setText(resourceBundle.getString("Leer"));
+        TopGrid_Handle.getStyleClass().add("icon-leer");
         break;
         
         case Mostrar:
         ColeccionDatos.TipoItem = "Mostrar";
         ((VBox) varName_Handle.getParent()).getChildren().remove(varName_Handle);
-        title_bar.setText("Mostrar");
-        getStyleClass().add("icon-purple");
+        title_bar.setText(resourceBundle.getString("Mostrar"));
+        TopGrid_Handle.getStyleClass().add("icon-mostrar");
         break;
     }
 }

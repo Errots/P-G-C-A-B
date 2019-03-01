@@ -19,7 +19,7 @@
    <children>
       <VBox alignment="CENTER" prefHeight="140.0" prefWidth="100.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <GridPane fx:id="TopGrid_Handle" alignment="TOP_CENTER" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="30.0" prefWidth="100.0" styleClass="node-overlay">
+            <GridPane fx:id="TopGrid_Handle" alignment="TOP_CENTER" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="30.0" prefWidth="100.0" style="-fx-background-radius: 10 10 0 0;">
               <columnConstraints>
                 <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="64.0" minWidth="34.0" prefWidth="64.0" />
                   <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="40.0" minWidth="10.0" prefWidth="21.0" />
@@ -35,12 +35,12 @@
                         <Insets right="10.0" />
                      </padding>
                      <font>
-                        <Font name="Arial Bold" size="12.0" />
+                        <Font name="Anja Eliane" size="12.0" />
                      </font>
                   </Label>
                   <Label fx:id="title_bar" text="Label">
                      <font>
-                        <Font name="Arial Bold" size="12.0" />
+                        <Font name="Anja Eliane" size="12.0" />
                      </font></Label>
                </children>
                <VBox.margin>
@@ -52,7 +52,7 @@
             </GridPane>
             <VBox prefHeight="59.0" prefWidth="100.0" spacing="10.0">
                <children>
-                  <TextField fx:id="varName_Handle" prefWidth="98.0" promptText="Nombre variable">
+                  <TextField fx:id="varName_Handle" prefWidth="98.0" promptText="%IconName">
                      <VBox.margin>
                         <Insets left="5.0" right="5.0" />
                      </VBox.margin>
@@ -67,7 +67,7 @@
                     </rowConstraints>
                      <children>
                         <Circle fx:id="endLink_Handle" fill="WHITE" radius="10.0" stroke="BLACK" strokeType="INSIDE" />
-                        <TextField fx:id="varValue_Handle" promptText="Valor" GridPane.columnIndex="1">
+                        <TextField fx:id="varValue_Handle" promptText="%IconVal" GridPane.columnIndex="1">
                            <GridPane.margin>
                               <Insets right="5.0" />
                            </GridPane.margin>

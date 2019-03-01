@@ -24,7 +24,7 @@ public class Copilador
 
     }
     
-    public boolean EjecutarDatos(ArrayList<DataCollector> data,String path) 
+    public String EjecutarDatos(ArrayList<DataCollector> data,String path) 
     {
         try{
         for (DataCollector Data: data)
@@ -32,9 +32,9 @@ public class Copilador
             GenerarComando(Data);
         }
         GeneradorArchivo Gene = new GeneradorArchivo();
-        Gene.ExecutarArchivo(comandos, imports, path);
-        return true;
-        }catch(Exception e){System.out.println(e.getMessage());return false;}
+        String filepath = Gene.ExecutarArchivo(comandos, imports, path);
+        return filepath;
+        }catch(Exception e){System.out.println(e.getMessage());return null;}
 
     }
     

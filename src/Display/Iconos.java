@@ -1,6 +1,8 @@
 package Display;
 
 import java.io.IOException;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
@@ -13,6 +15,7 @@ public class Iconos extends AnchorPane{
     @FXML AnchorPane root_pane;
     @FXML Label iconoTitle_bar;
     private TiposdeIconos mType;
+    
     
     public Iconos()
     {
@@ -43,7 +46,7 @@ public void relocateToPoint (Point2D p) {
     
     public TiposdeIconos getType(){return mType;}
     
-    public void setType(TiposdeIconos type){
+    public void setType(TiposdeIconos type,ResourceBundle resourceBundle){
         
         mType = type;
         
@@ -52,38 +55,38 @@ public void relocateToPoint (Point2D p) {
         switch(mType){
         
         case Entero:
-        iconoTitle_bar.setText("Entero");
-        getStyleClass().add("icon-blue");
+        iconoTitle_bar.setText(resourceBundle.getString("Entero"));
+        getStyleClass().add("node-overlay");
         nota.setText("\"Integer\" este tipo de datos solo acepta numeros enteros.  ");
         break;
             
         case Flotante:
-        iconoTitle_bar.setText("Flotante");
-        getStyleClass().add("icon-red");
-        nota.setText("\"Integer\" este tipo de datos solo acepta numeros decimales y es impreciso.  ");
+        iconoTitle_bar.setText(resourceBundle.getString("Flotante"));
+        getStyleClass().add("node-overlay");
+        nota.setText("\"Float\" este tipo de datos solo acepta numeros decimales y es impreciso.  ");
         break;
             
         case Doble:
-        iconoTitle_bar.setText("Doble");
-        getStyleClass().add("icon-grey");
+        iconoTitle_bar.setText(resourceBundle.getString("Doble"));
+        getStyleClass().add("node-overlay");
         nota.setText("\"Double\" este tipo de datos solo acepta numeros decimales.  ");
         break;
             
         case Texto:
-        iconoTitle_bar.setText("Texto");
-        getStyleClass().add("icon-yellow");
+        iconoTitle_bar.setText(resourceBundle.getString("Texto"));
+        getStyleClass().add("node-overlay");
         nota.setText("\"String\" este tipo de datos solo acepta lineas de caracteres o texto.  ");
         break;
         
         case Leer:
-        iconoTitle_bar.setText("Leer");
-        getStyleClass().add("icon-green");
+        iconoTitle_bar.setText(resourceBundle.getString("Leer"));
+        getStyleClass().add("node-overlay");
         nota.setText("\"Scanner\" recoje y almacena el valor escrito desde la barra de comandos.  ");
         break;
         
         case Mostrar:
-        iconoTitle_bar.setText("Mostrar");
-        getStyleClass().add("icon-purple");
+        iconoTitle_bar.setText(resourceBundle.getString("Mostrar"));
+        getStyleClass().add("node-overlay");
         nota.setText("\"System.out.print\" imprime cualquier tipo de dato que se le introdusca.  ");
         break;
         }

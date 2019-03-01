@@ -101,10 +101,13 @@ catch(IOException e){
 }
 }
 
-public void ExecutarArchivo(ArrayList<String> texto,ArrayList<String> imports,String Path) {
+public String ExecutarArchivo(ArrayList<String> texto,ArrayList<String> imports,String Path) {
 FileChooser chooser = new FileChooser();
 chooser.setTitle("Selecciones donde guardar");
 chooser.setInitialDirectory(new java.io.File(Path));
+FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Java files (*.java)", "*.java");
+chooser.getExtensionFilters().add(extFilter);
+chooser.setInitialFileName("Proyecto.java");
 File selectedFile = null;
 selectedFile = chooser.showSaveDialog(null);
 if (selectedFile != null){
@@ -130,11 +133,8 @@ try{
         }
         dos.write(Final);
         dos.close();
-//        synchronized (RootLayout.this) { RootLayout.this.notify(); }
-        super.SaveMainFile(selectedFile.getAbsolutePath());
-        super.WriteTextOutput("Codigo guardado con exito");
-        EjecutarArchivo exe= new EjecutarArchivo();
-        exe.Execute(selectedFile.getAbsolutePath(), Path);
+
+        return selectedFile.getAbsolutePath();
     }
 }
 catch(FileNotFoundException e){
@@ -149,6 +149,7 @@ catch(IOException e){
 {
     WriteTextOutput("Se cancelo el codigo");
 }
+return null;
 }
     
 }

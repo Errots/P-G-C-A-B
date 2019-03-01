@@ -6,9 +6,14 @@ import CGenerator.DataCollector;
 import Configurations.ConfigurationData;
 import Configurations.ProyectConfigurator;
 import Executables.EjecutarArchivo;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
@@ -18,13 +23,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
@@ -45,6 +51,7 @@ public class RootLayout extends AnchorPane {
     @FXML ScrollPane Dropzone_handle;
     @FXML ImageView Execute_Handle;
     @FXML MenuItem SaveProyect_Handle;
+    @FXML CheckMenuItem ChangeLanguage_Handle;
 
     private Iconos mDragOverIcon = null;
     private EventHandler mIconDragOverRoot=null;
@@ -56,6 +63,7 @@ public class RootLayout extends AnchorPane {
     private EventHandler mNewProyectMouseEvent=null;
     private EventHandler mSaveProyectActionEvent=null;
     private EventHandler mExecuteMouseEvent=null;
+    private EventHandler mChangeLanguageActionEvent=null;
     
     private  ArrayList<String> NodesIds = new ArrayList<String>();
     
@@ -65,14 +73,16 @@ public class RootLayout extends AnchorPane {
     
     private ArrayList<DataCollector> ColeccionDatos = new ArrayList<>();
     
+    public ResourceBundle resourceBundle = ResourceBundle.getBundle("Resource.Language", new Locale("es","ES"));
       
     public RootLayout(){
         FXMLLoader fxmlLoader = new FXMLLoader(
-		getClass().getResource("/Display/FXMLs/MainLayout.fxml")
+		getClass().getResource("/Display/FXMLs/MainLayout.fxml"),resourceBundle
 		);
 		
 		fxmlLoader.setRoot(this); 
 		fxmlLoader.setController(this);
+                
 		
 		try { 
 			fxmlLoader.load();
@@ -101,7 +111,7 @@ public class RootLayout extends AnchorPane {
     NewProyect_Handle.setOnMouseClicked(mNewProyectMouseEvent);
     SaveProyect_Handle.setOnAction(mSaveProyectActionEvent);
     Execute_Handle.setOnMouseClicked(mExecuteMouseEvent);
-    
+    ChangeLanguage_Handle.setOnAction(mChangeLanguageActionEvent);
 
     
     // Llenar toda la barra izquierda con iconos para pruebas
@@ -111,7 +121,7 @@ public class RootLayout extends AnchorPane {
         
         addDragDetection(icn);
         
-        icn.setType(TiposdeIconos.values()[i]);
+        icn.setType(TiposdeIconos.values()[i],resourceBundle);
         left_pane.getChildren().add(icn);
     }
     
@@ -134,7 +144,7 @@ public class RootLayout extends AnchorPane {
             Iconos icn = (Iconos) event.getSource();
 
             //begin drag ops
-            mDragOverIcon.setType(icn.getType());
+            mDragOverIcon.setType(icn.getType(),resourceBundle);
             mDragOverIcon.relocateToPoint(new Point2D (event.getSceneX(), event.getSceneY()));
 
             ClipboardContent content = new ClipboardContent();
@@ -219,9 +229,9 @@ public class RootLayout extends AnchorPane {
 		if (container != null) {
             if (container.getValue("scene_coords") != null) {
 
-            IconDrag node = new IconDrag();
+            IconDrag node = new IconDrag(resourceBundle);
 
-                node.setType(TiposdeIconos.valueOf(container.getValue("type")));
+                node.setType(TiposdeIconos.valueOf(container.getValue("type")),resourceBundle);
                 right_pane.getChildren().add(node);
                 NodesIds.add(node.getId());
 
@@ -385,9 +395,9 @@ public class RootLayout extends AnchorPane {
                 Dropzone_handle.setDisable(false);
                 
                 for (DataCollector ColeccionDato : collector.ColeccionDatos) {
-                    IconDrag node = new IconDrag();
+                    IconDrag node = new IconDrag(resourceBundle);
 
-                    node.setType(TiposdeIconos.valueOf(ColeccionDato.TipoItem));
+                    node.setType(TiposdeIconos.valueOf(ColeccionDato.TipoItem),resourceBundle);
                     right_pane.getChildren().add(node);
                     NodesIds.add(node.getId());
 
@@ -436,10 +446,12 @@ public class RootLayout extends AnchorPane {
                     }   
                 }
                 if(!ColeccionDatos.isEmpty() && Correcto == true) try {
-                    boolean next = copiler.EjecutarDatos(ColeccionDatos,ProyectPath);
-                    if (next) {
+                    String FilePath = copiler.EjecutarDatos(ColeccionDatos,ProyectPath);
+                    if (!FilePath.isEmpty()) {
                         WriteTextOutput("Copilacion correcta");
                         WriteTextOutput("Executando archivo");
+                        MainFile = FilePath;
+                        Execute(MainFile,ProyectPath);
                     }
                  } catch (Exception ex) {
                     Logger.getLogger(RootLayout.class.getName()).log(Level.SEVERE, null, ex);
@@ -448,7 +460,58 @@ public class RootLayout extends AnchorPane {
                 event.consume();
             }
         };
+        
+        mChangeLanguageActionEvent = new EventHandler <ActionEvent>()
+        {
+            @Override
+            public void handle(ActionEvent event)
+            {
+                if (ChangeLanguage_Handle.isSelected()) {
+                    ChangeLanguage_Handle.setSelected(!ChangeLanguage_Handle.isSelected());
+                    loadView(new Locale("en", "EN"));
+                }else{ChangeLanguage_Handle.setSelected(!ChangeLanguage_Handle.isSelected());loadView(new Locale("es", "ES"));} 
+                event.consume();
+            }
+        };
     }
+    
+    private static String printLines(String name, InputStream ins) throws Exception {
+    String line = null;
+    BufferedReader in = new BufferedReader(
+        new InputStreamReader(ins));
+    while ((line = in.readLine()) != null) {
+        System.out.println(name + " " + line);
+        return line;
+    }
+    return "";
+  }
+
+  private void runProcess(String command) throws Exception {
+    Process pro = Runtime.getRuntime().exec(command);
+    String Valor = printLines(command + " stdout:", pro.getInputStream());
+    String Error = printLines(command + " stderr:", pro.getErrorStream());
+      if (!Valor.isEmpty()) {
+          WriteTextOutput(Valor);
+      }
+        if (!Error.isEmpty()) {
+          WriteTextOutput(Error);
+        }
+    pro.waitFor();
+    System.out.println(command + " exitValue() " + pro.exitValue());
+  }
+  
+  public void Execute(String FilePath, String ProyectPath)
+  {
+      String FileName = FilePath.substring(FilePath.lastIndexOf("\\")+1);
+    try {
+      runProcess("javac -d "+ProyectPath+"\\Build "+FilePath);
+   
+      runProcess("java -cp " +ProyectPath+"\\Build "+FileName.replaceAll(".java", ""));
+    } catch (Exception e) {
+      WriteTextOutput(e.getMessage());
+      e.printStackTrace();
+    }
+  }
 
     public void RemoveNode(String id)
     {
@@ -493,6 +556,27 @@ public class RootLayout extends AnchorPane {
     public void WriteTextOutput(String texto)
     {
         Output_Handle.appendText(texto+"\n");
+    }
+    
+    private void loadView(Locale locale) {
+        resourceBundle = ResourceBundle.getBundle("Resource.Language", locale);
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(
+		getClass().getResource("/Display/FXMLs/MainLayout.fxml"),resourceBundle
+		);
+            fxmlLoader.setRoot(this);
+            fxmlLoader.setController(this);
+            
+            // replace the content
+            this.getChildren().clear();
+            
+            fxmlLoader.load();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        ChangeLanguage_Handle.setSelected(!ChangeLanguage_Handle.isSelected());
+        buildDragHandlers();
+
     }
 }
 

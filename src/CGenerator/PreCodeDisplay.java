@@ -3,6 +3,8 @@ package CGenerator;
 import Display.IconDrag;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -29,10 +31,7 @@ public class PreCodeDisplay extends AnchorPane {
     ArrayList<String> comandos,incluidores;
     
     public PreCodeDisplay() throws IOException{
-        FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("/Display/FXMLs/PreCodeDisplay.fxml"));
-        
-        
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/Display/FXMLs/PreCodeDisplay.fxml"),ResourceBundle.getBundle("Resource.Language", new Locale("es")));
         fxmlLoader.setController(this);
         
         Scene scene = new Scene(fxmlLoader.load(), 300, 480);

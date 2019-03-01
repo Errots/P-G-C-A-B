@@ -4,9 +4,10 @@ import Display.RootLayout;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import javafx.application.Platform;
 
 public class EjecutarArchivo extends RootLayout{
-    
+     private Thread fxThread;
     private static void printLines(String name, InputStream ins) throws Exception {
     String line = null;
     BufferedReader in = new BufferedReader(
@@ -20,9 +21,8 @@ public class EjecutarArchivo extends RootLayout{
     Process pro = Runtime.getRuntime().exec(command);
     printLines(command + " stdout:", pro.getInputStream());
     printLines(command + " stderr:", pro.getErrorStream());
-    WriteTextOutput(pro.getInputStream().toString());
-    WriteTextOutput(pro.getErrorStream().toString());
-    
+    super.WriteTextOutput(pro.getInputStream().toString());
+    super.WriteTextOutput(pro.getErrorStream().toString());
     pro.waitFor();
     System.out.println(command + " exitValue() " + pro.exitValue());
   }
