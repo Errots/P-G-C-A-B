@@ -1,7 +1,6 @@
 package Display;
 
 import java.io.IOException;
-import java.util.Locale;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -9,6 +8,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
+
 
 public class Iconos extends AnchorPane{
     Tooltip nota = new Tooltip();
@@ -57,37 +57,109 @@ public void relocateToPoint (Point2D p) {
         case Entero:
         iconoTitle_bar.setText(resourceBundle.getString("Entero"));
         getStyleClass().add("node-overlay");
-        nota.setText("\"Integer\" este tipo de datos solo acepta numeros enteros.  ");
+        nota.setText(resourceBundle.getString("EnteroTex"));
         break;
             
         case Flotante:
         iconoTitle_bar.setText(resourceBundle.getString("Flotante"));
         getStyleClass().add("node-overlay");
-        nota.setText("\"Float\" este tipo de datos solo acepta numeros decimales y es impreciso.  ");
+        nota.setText(resourceBundle.getString("FlotanteTex"));
         break;
             
         case Doble:
         iconoTitle_bar.setText(resourceBundle.getString("Doble"));
         getStyleClass().add("node-overlay");
-        nota.setText("\"Double\" este tipo de datos solo acepta numeros decimales.  ");
+        nota.setText(resourceBundle.getString("DobleTex"));
         break;
             
         case Texto:
         iconoTitle_bar.setText(resourceBundle.getString("Texto"));
         getStyleClass().add("node-overlay");
-        nota.setText("\"String\" este tipo de datos solo acepta lineas de caracteres o texto.  ");
+        nota.setText(resourceBundle.getString("TextoTex"));
         break;
         
         case Leer:
         iconoTitle_bar.setText(resourceBundle.getString("Leer"));
         getStyleClass().add("node-overlay");
-        nota.setText("\"Scanner\" recoje y almacena el valor escrito desde la barra de comandos.  ");
+        nota.setText(resourceBundle.getString("LeerTex"));
         break;
         
         case Mostrar:
         iconoTitle_bar.setText(resourceBundle.getString("Mostrar"));
         getStyleClass().add("node-overlay");
-        nota.setText("\"System.out.print\" imprime cualquier tipo de dato que se le introdusca.  ");
+        nota.setText(resourceBundle.getString("MostrarTex"));
+        break;
+            
+        case Mas:
+        iconoTitle_bar.setText(resourceBundle.getString("Mas"));
+        getStyleClass().add("node-overlay");
+        nota.setText(resourceBundle.getString("MasTex"));
+        break;
+            
+        case Menos:
+        iconoTitle_bar.setText(resourceBundle.getString("Menos"));
+        getStyleClass().add("node-overlay");
+        nota.setText(resourceBundle.getString("MenosTex"));
+        break;
+            
+        case Entre:
+        iconoTitle_bar.setText(resourceBundle.getString("Entre"));
+        getStyleClass().add("node-overlay");
+        nota.setText(resourceBundle.getString("EntreTex"));
+        break;
+        
+        case Por:
+        iconoTitle_bar.setText(resourceBundle.getString("Por"));
+        getStyleClass().add("node-overlay");
+        nota.setText(resourceBundle.getString("PorTex"));
+        break;
+            
+        case Diferencia:
+        iconoTitle_bar.setText(resourceBundle.getString("Diferencia"));
+        getStyleClass().add("node-overlay");
+        nota.setText(resourceBundle.getString("DiferenciaTex"));
+        break;
+                            
+        case Si:
+        iconoTitle_bar.setText(resourceBundle.getString("Si"));
+        getStyleClass().add("node-overlay");
+        nota.setText(resourceBundle.getString("SiTex"));
+        break;
+                                
+        case Sino:
+        iconoTitle_bar.setText(resourceBundle.getString("Sino"));
+        getStyleClass().add("node-overlay");
+        nota.setText(resourceBundle.getString("SinoTex"));
+        break;
+                                    
+        case Cuando:
+        iconoTitle_bar.setText(resourceBundle.getString("Cuando"));
+        getStyleClass().add("node-overlay");
+        nota.setText(resourceBundle.getString("CuandoTex"));
+        break;
+                                        
+        case Mientras:
+        iconoTitle_bar.setText(resourceBundle.getString("Mientras"));
+        getStyleClass().add("node-overlay");
+        nota.setText(resourceBundle.getString("MientrasTex"));
+        break;
+                                            
+        case Mientrasque:
+        iconoTitle_bar.setText(resourceBundle.getString("Mientrasque"));
+        getStyleClass().add("node-overlay");
+        nota.setText(resourceBundle.getString("MientrasqueTex"));
+        break;
+                                                
+        case Porcada:
+        iconoTitle_bar.setText(resourceBundle.getString("Porcada"));
+        getStyleClass().add("node-overlay");
+        nota.setText(resourceBundle.getString("PorcadaTex"));
+        break;
+                                                    
+        case Cada:
+        iconoTitle_bar.setText(resourceBundle.getString("Cada"));
+        getStyleClass().add("node-overlay");
+        nota.setText(resourceBundle.getString("CadaTex"));
         break;
         }
     }

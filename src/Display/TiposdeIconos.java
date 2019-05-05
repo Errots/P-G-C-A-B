@@ -6,5 +6,20 @@ public enum TiposdeIconos {
     Doble,
     Texto,
     Leer,
-    Mostrar
+    Mostrar,  
+    
+    Mas,
+    Menos,
+    Entre,
+    Por,
+    Diferencia,
+    
+    Si,
+    Sino,
+    Cuando,
+    
+    Mientras,
+    Mientrasque,
+    Porcada,
+    Cada
 }

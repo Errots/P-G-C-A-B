@@ -1,7 +1,7 @@
 package Configurations;
 
 import CGenerator.DataCollector;
-import Display.RootLayout;
+
 import Display.TiposdeIconos;
 import java.io.File;
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import org.w3c.dom.Element;
 import javafx.stage.FileChooser;
 import org.w3c.dom.Attr;
 
-public class ProyectConfigurator extends RootLayout{
+public class ProyectConfigurator {
     public ConfigurationData OpenProyect()
     {
         ConfigurationData data = new ConfigurationData();
@@ -36,7 +36,6 @@ public class ProyectConfigurator extends RootLayout{
                 NodeList nList = doc.getElementsByTagName("Proyect");
                 Node nNode = nList.item(0);
                 Element eElement = (Element) nNode;
-                WriteTextOutput("Incializando proyecto "+eElement.getAttribute("Name"));
                 
                 NodeList Config = doc.getElementsByTagName("ProyectConfig");
                 Node ConfigNode = Config.item(0);
@@ -94,7 +93,7 @@ public class ProyectConfigurator extends RootLayout{
                 } 
                 return data;
             }
-        }catch(Exception e){WriteTextOutput(e.getMessage());}
+        }catch(Exception e){}
         return data;
     }
     
@@ -207,6 +206,6 @@ public class ProyectConfigurator extends RootLayout{
                 }
                 } 
             
-        }catch(Exception e){WriteTextOutput(e.getMessage());}
+        }catch(Exception e){}
     }
 }

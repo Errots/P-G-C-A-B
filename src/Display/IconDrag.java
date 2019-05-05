@@ -1,6 +1,5 @@
 package Display;
 
-import Display.RootLayout;
 import CGenerator.*;
 import Configurations.ConfigurationData;
 import java.io.IOException;
@@ -20,8 +19,10 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
@@ -33,13 +34,17 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 
 import javafx.scene.shape.Circle;
+import org.controlsfx.control.PopOver;
 
 public class IconDrag extends AnchorPane{
     
+    @FXML private VBox BaseVar_Handle;
     @FXML private AnchorPane root_pane;
     @FXML private Circle startLink_Handle;
     @FXML private Circle endLink_Handle;
@@ -51,6 +56,33 @@ public class IconDrag extends AnchorPane{
     @FXML private GridPane Inputs_Handle;
     @FXML private GridPane TopGrid_Handle;
     
+    @FXML private VBox BaseOp_Handle;
+    @FXML private Circle SecondValueLink_Handle;
+    @FXML private Circle FirstValueLink_Handle;
+    @FXML private ChoiceBox Choice_Handle;
+    @FXML private TextField FirstValue_Handle;
+    @FXML private TextField SecondValue_Handle;
+    
+    
+    @FXML private VBox BaseBuc_Handle;    
+    @FXML private Circle BucLink_Handle;
+    @FXML private TextField BucCount_Handle;
+    @FXML private Pane ConditionsItemsBuc_Handle;
+    @FXML private HBox ItemsIconsBuc_Handle;
+
+    
+    @FXML private VBox BaseCon_Handle;
+    @FXML private Circle FirstCondLink_Handle;
+    @FXML private Circle SecondCondLink_Handle;
+     @FXML private ChoiceBox ChoiceCon_Handle;
+    @FXML private TextField SecondCond_Handle;
+    @FXML private TextField FirstCondition_Handle;
+    
+    @FXML private Pane ConditionsItems_Handle;
+    @FXML private HBox ItemsIcons_Handle;
+    
+    
+    
     private LinkNodo mDragLink = null;
     private AnchorPane right_pane = null;
 
@@ -59,6 +91,9 @@ public class IconDrag extends AnchorPane{
     private EventHandler <MouseEvent> mVarNameEventHandleMouseExit;
     private EventHandler <MouseEvent> mVarValueEventHandleMouseExit;
     private EventHandler <MouseEvent> mAddBtnEventHandleMouseClicked;
+    private EventHandler <MouseEvent> mConditionsItemsMouseClicked;
+    private EventHandler <DragEvent> mConditionsItemsDragDrop;
+
     private EventHandler <DragEvent> mLeftLinkHandleDragDropped;
     private EventHandler <DragEvent> mRightLinkHandleDragDropped;
     private EventHandler <DragEvent> mContextLinkDragOver;  
@@ -77,22 +112,27 @@ public class IconDrag extends AnchorPane{
     private Point2D mDragOffset = new Point2D(0.0, 0.0);
         
     private RootLayout Root;
-    
+    ResourceBundle resourceBundle = null;
+
     private final IconDrag self;
+    private PopOver UCIC; 
+    
     boolean NameX = false;
     boolean ValX = false;
-    public IconDrag(ResourceBundle resourceBundle) {
+    public IconDrag(ResourceBundle resource, PopOver CIC) {
     
     FXMLLoader fxmlLoader = new FXMLLoader(
-    getClass().getResource("/Display/FXMLs/IconoMovible.fxml"),resourceBundle
+    getClass().getResource("/Display/FXMLs/IconoMovible.fxml"),resource
     );
         
     fxmlLoader.setRoot(this); 
     fxmlLoader.setController(this);
-    self = this;   
+    self = this;  
+    UCIC = CIC;
     try { 
     fxmlLoader.load();
-        
+    resourceBundle = resource;    
+    
     } catch (IOException exception) {
     throw new RuntimeException(exception);
     }
@@ -106,6 +146,9 @@ private void initialize()
     buildNodeDragHandlers();
     buildLinkDragHandlers();
     addBtn_Handle.setOnMouseClicked(mAddBtnEventHandleMouseClicked);
+    ConditionsItems_Handle.setOnMouseClicked(mConditionsItemsMouseClicked);
+    ConditionsItems_Handle.setOnDragDropped(mConditionsItemsDragDrop);
+
     endLink_Handle.setOnDragDetected(mLeftLinkHandleDragDetected);
     startLink_Handle.setOnDragDetected(mRightLinkHandleDragDetected);
     endLink_Handle.setOnDragDropped(mLeftLinkHandleDragDropped);
@@ -123,137 +166,480 @@ private void initialize()
 });
     
     
-timer.scheduleAtFixedRate(new TimerTask() {
-  @Override
-  public void run() {
-    String nombre = varName_Handle.getText();
-            if(!nombre.matches("[a-z,A-Z].*")|| nombre.isEmpty())
-                {
-                    
-                    switch(mType)
-                    {
-                    case Mostrar:
-                        NameX = true;
-                    break;
-                        
-                    default:ColeccionDatos.noValido = false;
-                    Tooltip nota = new Tooltip();
-                    nota.setText("Solo se aceptan letras");
-                    root_pane.setStyle("-fx-background-color:FF0000;");         
-                    NameX = false;
-                        break;
-                    }
-                    
-                }
-                else 
-                {
-                    NameX = true;
-                }
-            if (!ColeccionDatos.NombreItem.equals(nombre)){           
-            ColeccionDatos.NombreItem = varName_Handle.getText();
-            }
-  }
-}, 3000, 3000);    
+    
     
 timer.scheduleAtFixedRate(new TimerTask() {
   @Override
   public void run() {
-     String valor = varValue_Handle.getText();
-            switch(mType)
+        switch(mType)
+        {
+        case Entero:
+            if(!varValue_Handle.getText().matches("[0-9]*[^.]")|| varValue_Handle.getText().isEmpty())
             {
-            case Entero:
-                if(!valor.matches("[0-9]*[^.]")|| valor.isEmpty())
-                {
-                    Tooltip nota = new Tooltip();
-                    nota.setText("Solo se aceptan numeros enteros");
-                    root_pane.setStyle("-fx-background-color:red;");
-                    ColeccionDatos.noValido = false;
-                    ValX = false;
-                }
-                else {ValX = true;}
-            break;
-            
-            case Flotante:
-                if(!valor.matches("[0-9]+\\.[0-9]+")|| valor.isEmpty())
-                {
-                    Tooltip nota = new Tooltip();
-                    nota.setText("Solo se aceptan numeros decimales");
-                    root_pane.setStyle("-fx-background-color:red;");
-                    ColeccionDatos.noValido = false;
-                    ValX = false;
-                }
-                else {   ValX = true;}
-            break;
-            
-            case Doble:
-                if(!valor.matches("[0-9]+\\.[0-9]+")|| valor.isEmpty())
-                {
-                    Tooltip nota = new Tooltip();
-                    nota.setText("Solo se aceptan numeros decimales");
-                    root_pane.setStyle("-fx-background-color:red;");
-                    ColeccionDatos.noValido = false;
-                    ValX = false;
-                }
-                else {ValX = true;}
-            break;
-            
-            case Texto:
-                if(!valor.matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| valor.isEmpty())
-                {
-                    Tooltip nota = new Tooltip();
-                    nota.setText("Solo se aceptan letras");
-                    root_pane.setStyle("-fx-background-color:red;");
-                    ColeccionDatos.noValido = false;
-                    ValX = false;
-                }
-                else {ValX = true;}
-            break;
-        
-            case Mostrar:
-                if(!valor.matches("[0-9]*[a-zA-Z]*[.]*")|| valor.isEmpty())
-                {
-                    Tooltip nota = new Tooltip();
-                    nota.setText("Solo se aceptan letras");
-                    root_pane.setStyle("-fx-background-color:red;");
-                    ColeccionDatos.noValido = false;
-                    ValX = false;
-                }
-                else {ValX = true;}
-            break;
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan numeros enteros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
             }
-            if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
-            ColeccionDatos.ValorItem = varValue_Handle.getText();
-            }if (ValX && NameX) {
-        switch(mType){
-        
-                    case Entero:
-                    root_pane.setStyle("-fx-background-color: lightgrey;"); 
-                    break;
-            
-                    case Flotante:
-                    root_pane.setStyle("-fx-background-color: lightgrey;"); 
-                    break;
-            
-                    case Doble:
-                    root_pane.setStyle("-fx-background-color: lightgrey;"); 
-                    break;
-            
-                    case Texto:
-                    root_pane.setStyle("-fx-background-color: lightgrey;"); 
-                    break;
-        
-                    case Leer:
-                    root_pane.setStyle("-fx-background-color: lightgrey;"); 
-                    break;
-        
-                    case Mostrar:
-                    root_pane.setStyle("-fx-background-color: lightgrey;"); 
-                    break;
+            else if(!varName_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| varName_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+                ColeccionDatos.NombreItem = varName_Handle.getText();
                 }
-                    ColeccionDatos.noValido = true;
-                    ColeccionDatos.positionX = getLayoutX();
-                    ColeccionDatos.positionY = getLayoutY();
-    }
+                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+                ColeccionDatos.ValorItem = varValue_Handle.getText();
+                }
+            }
+        break;
+
+        case Flotante:
+            if(!varValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| varValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan numeros decimales");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else if(!varName_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| varName_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+                ColeccionDatos.NombreItem = varName_Handle.getText();
+                }
+                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+                ColeccionDatos.ValorItem = varValue_Handle.getText();
+                }
+            }
+        break;
+
+        case Doble:
+            if(!varValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| varValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan numeros decimales");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else if(!varName_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| varName_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+                ColeccionDatos.NombreItem = varName_Handle.getText();
+                }
+                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+                ColeccionDatos.ValorItem = varValue_Handle.getText();
+                }
+            }
+        break;
+
+        case Texto:
+            if(!varValue_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| varValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else if(!varName_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| varName_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+                ColeccionDatos.NombreItem = varName_Handle.getText();
+                }
+                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+                ColeccionDatos.ValorItem = varValue_Handle.getText();
+                }
+            }
+        break;
+
+        case Mostrar:
+            if(!varValue_Handle.getText().matches("[0-9]*[a-zA-Z]*[.]*")|| varValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+                ColeccionDatos.NombreItem = varName_Handle.getText();
+                }
+                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+                ColeccionDatos.ValorItem = varValue_Handle.getText();
+                }
+            }
+        break;
+
+        case Leer:
+            if(!varName_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| varName_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }
+            else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+                ColeccionDatos.NombreItem = varName_Handle.getText();
+                }
+            }
+        break;
+            
+        case Mas:
+            if(!FirstValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| FirstValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo acceptan numeros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else if(!SecondValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| SecondValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+                ColeccionDatos.NombreItem = varName_Handle.getText();
+                }
+                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+                ColeccionDatos.ValorItem = varValue_Handle.getText();
+                }
+            }
+        break;
+            
+        case Menos:
+            if(!FirstValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| FirstValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo acceptan numeros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else if(!SecondValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| SecondValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+                ColeccionDatos.NombreItem = varName_Handle.getText();
+                }
+                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+                ColeccionDatos.ValorItem = varValue_Handle.getText();
+                }
+            }
+        break;
+            
+        case Por:
+            if(!FirstValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| FirstValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo acceptan numeros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else if(!SecondValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| SecondValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+                ColeccionDatos.NombreItem = varName_Handle.getText();
+                }
+                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+                ColeccionDatos.ValorItem = varValue_Handle.getText();
+                }
+            }
+        break;
+            
+        case Entre:
+            if(!FirstValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| FirstValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo acceptan numeros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else if(!SecondValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| SecondValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+                ColeccionDatos.NombreItem = varName_Handle.getText();
+                }
+                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+                ColeccionDatos.ValorItem = varValue_Handle.getText();
+                }
+            }
+        break;
+            
+        case Diferencia:
+            if(!FirstValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| FirstValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo acceptan numeros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else if(!SecondValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| SecondValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
+                ColeccionDatos.FirstValue = FirstValue_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondCondition.equals(SecondCond_Handle.getText())){           
+                ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
+                }
+                ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+            }
+        break;
+            
+        case Si:
+            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| FirstCondition_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo acceptan numeros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| SecondCond_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
+                ColeccionDatos.FirstCondition = FirstCondition_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondCondition.equals(SecondCond_Handle.getText())){           
+                ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
+                }
+                ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+            }
+        break;
+            
+        case Sino:
+            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| FirstCondition_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo acceptan numeros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| SecondCond_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
+                ColeccionDatos.FirstCondition = FirstCondition_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondCondition.equals(SecondCond_Handle.getText())){           
+                ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
+                }
+                ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+            }
+        break;
+            
+        case Cuando:
+            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| FirstCondition_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo acceptan numeros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| SecondCond_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
+                ColeccionDatos.FirstCondition = FirstCondition_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondCondition.equals(SecondCond_Handle.getText())){           
+                ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
+                }
+                ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+            }
+        break;
+            
+        case Mientras:
+            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| FirstCondition_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo acceptan numeros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| SecondCond_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
+                ColeccionDatos.FirstCondition = FirstCondition_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondCondition.equals(SecondCond_Handle.getText())){           
+                ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
+                }
+                ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+            }
+        break;
+        
+        case Mientrasque:
+            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| FirstCondition_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo acceptan numeros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| SecondCond_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
+                ColeccionDatos.FirstCondition = FirstCondition_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondCondition.equals(SecondCond_Handle.getText())){           
+                ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
+                }
+                ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+            }
+        break;
+            
+        case Porcada:
+            if(!BucCount_Handle.getText().matches("[0-9]*[^.]")|| BucCount_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo acceptan numeros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+                ColeccionDatos.NombreItem = varName_Handle.getText();
+                }
+                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+                ColeccionDatos.ValorItem = varValue_Handle.getText();
+                }
+            }
+        break;
+            
+        case Cada:
+            if(!BucCount_Handle.getText().matches("[0-9]*[^.]")|| BucCount_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo acceptan numeros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+                ColeccionDatos.NombreItem = varName_Handle.getText();
+                }
+                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+                ColeccionDatos.ValorItem = varValue_Handle.getText();
+                }
+            }
+        break;
+        }
+           
+        if (ValX && NameX) {
+            root_pane.setStyle("-fx-background-color: lightgrey;"); 
+
+            ColeccionDatos.noValido = true;
+            ColeccionDatos.positionX = getLayoutX();
+            ColeccionDatos.positionY = getLayoutY();
+        }
     }
 }, 3000, 3000);
 
@@ -325,63 +711,298 @@ public void setType(TiposdeIconos type,ResourceBundle resourceBundle){
     switch(mType){
         
         case Entero:
+            BaseCon_Handle.getChildren().clear();
+            BaseBuc_Handle.getChildren().clear();
+            BaseOp_Handle.getChildren().clear();
+            BaseVar_Handle.setPadding(new Insets(10, 0, 10, 0));
         ColeccionDatos.TipoItem = "Entero";
         ((VBox) addBtn_Handle.getParent()).getChildren().remove(addBtn_Handle);
         title_bar.setText(resourceBundle.getString("Entero"));
-        TopGrid_Handle.getStyleClass().add("icon-entero");
+        TopGrid_Handle.getStyleClass().add("icon-Var");
         break;
             
         case Flotante:
+            BaseCon_Handle.getChildren().clear();
+            BaseBuc_Handle.getChildren().clear();
+            BaseOp_Handle.getChildren().clear();
+                        BaseVar_Handle.setPadding(new Insets(10, 0, 10, 0));
+
         ColeccionDatos.TipoItem = "Flotante";
         ((VBox) addBtn_Handle.getParent()).getChildren().remove(addBtn_Handle);
         title_bar.setText(resourceBundle.getString("Flotante"));
-        TopGrid_Handle.getStyleClass().add("icon-flotante");
+        TopGrid_Handle.getStyleClass().add("icon-Var");
         break;
             
         case Doble:
+            BaseCon_Handle.getChildren().clear();
+            BaseBuc_Handle.getChildren().clear();
+            BaseOp_Handle.getChildren().clear();
+                        BaseVar_Handle.setPadding(new Insets(10, 0, 10, 0));
+
         ColeccionDatos.TipoItem = "Doble";        
         ((VBox) addBtn_Handle.getParent()).getChildren().remove(addBtn_Handle);
         title_bar.setText(resourceBundle.getString("Doble"));
-        TopGrid_Handle.getStyleClass().add("icon-doble");
+        TopGrid_Handle.getStyleClass().add("icon-Var");
         break;
             
         case Texto:
+            BaseCon_Handle.getChildren().clear();
+            BaseBuc_Handle.getChildren().clear();
+            BaseOp_Handle.getChildren().clear();
+                        BaseVar_Handle.setPadding(new Insets(10, 0, 10, 0));
+
         ColeccionDatos.TipoItem = "Texto";
         addBtn_Handle.setVisible(true);
         title_bar.setText(resourceBundle.getString("Texto"));
-        TopGrid_Handle.getStyleClass().add("icon-texto");
+        TopGrid_Handle.getStyleClass().add("icon-Var");
         break;
         
         case Leer:
+            BaseCon_Handle.getChildren().clear();
+            BaseBuc_Handle.getChildren().clear();
+            BaseOp_Handle.getChildren().clear();
+                        BaseVar_Handle.setPadding(new Insets(10, 0, 10, 0));
+
         ColeccionDatos.TipoItem = "Leer";
         ((GridPane) endLink_Handle.getParent()).getChildren().remove(endLink_Handle);
         ((GridPane) varValue_Handle.getParent()).getChildren().remove(varValue_Handle);
         title_bar.setText(resourceBundle.getString("Leer"));
-        TopGrid_Handle.getStyleClass().add("icon-leer");
+        TopGrid_Handle.getStyleClass().add("icon-Func");
         break;
         
         case Mostrar:
+            BaseCon_Handle.getChildren().clear();
+            BaseBuc_Handle.getChildren().clear();
+            BaseOp_Handle.getChildren().clear();
+                        BaseVar_Handle.setPadding(new Insets(10, 0, 10, 0));
+
         ColeccionDatos.TipoItem = "Mostrar";
         ((VBox) varName_Handle.getParent()).getChildren().remove(varName_Handle);
         title_bar.setText(resourceBundle.getString("Mostrar"));
-        TopGrid_Handle.getStyleClass().add("icon-mostrar");
+        TopGrid_Handle.getStyleClass().add("icon-Func");
+        break;
+            
+        case Mas:
+            BaseCon_Handle.getChildren().clear();
+            BaseBuc_Handle.getChildren().clear();
+            BaseVar_Handle.getChildren().clear();
+                        BaseOp_Handle.setPadding(new Insets(10, 0, 10, 0));
+
+        ColeccionDatos.TipoItem = "Mas";
+        title_bar.setText(resourceBundle.getString("Mas"));
+                TopGrid_Handle.getStyleClass().add("icon-Op");
+                        Choice_Handle.setValue("+");
+
+                Choice_Handle.getItems().add("+");
+    Choice_Handle.getItems().add("-");
+    Choice_Handle.getItems().add("*");
+    Choice_Handle.getItems().add("/");
+    Choice_Handle.getItems().add("%");
+
+        break;
+            
+        case Menos:
+            BaseCon_Handle.getChildren().clear();
+            BaseBuc_Handle.getChildren().clear();
+            BaseVar_Handle.getChildren().clear();
+            BaseOp_Handle.setPadding(new Insets(10, 0, 10, 0));
+        ColeccionDatos.TipoItem = "Menos";
+        title_bar.setText(resourceBundle.getString("Menos"));
+                TopGrid_Handle.getStyleClass().add("icon-Op");
+                        Choice_Handle.setValue("-");
+
+                Choice_Handle.getItems().add("-");
+                Choice_Handle.getItems().add("+");
+    
+    Choice_Handle.getItems().add("*");
+    Choice_Handle.getItems().add("/");
+    Choice_Handle.getItems().add("%");
+
+        break;
+            
+        case Por:
+            BaseCon_Handle.getChildren().clear();
+            BaseBuc_Handle.getChildren().clear();
+            BaseVar_Handle.getChildren().clear();
+            BaseOp_Handle.setPadding(new Insets(10, 0, 10, 0));
+        ColeccionDatos.TipoItem = "Por";
+        title_bar.setText(resourceBundle.getString("Por"));
+                TopGrid_Handle.getStyleClass().add("icon-Op");
+                        Choice_Handle.setValue("*");
+
+                Choice_Handle.getItems().add("*");
+    Choice_Handle.getItems().add("-");
+    Choice_Handle.getItems().add("+");
+    Choice_Handle.getItems().add("/");
+    Choice_Handle.getItems().add("%");
+
+        break;
+            
+        case Entre:
+            BaseCon_Handle.getChildren().clear();
+            BaseBuc_Handle.getChildren().clear();
+            BaseVar_Handle.getChildren().clear();
+            BaseOp_Handle.setPadding(new Insets(10, 0, 10, 0));
+        ColeccionDatos.TipoItem = "Entre";
+        title_bar.setText(resourceBundle.getString("Entre"));
+                TopGrid_Handle.getStyleClass().add("icon-Op");
+                        Choice_Handle.setValue("/");
+
+                Choice_Handle.getItems().add("/");
+    Choice_Handle.getItems().add("*");
+    Choice_Handle.getItems().add("-");
+    Choice_Handle.getItems().add("+");
+    Choice_Handle.getItems().add("%");
+
+        break;
+            
+        case Diferencia:
+            BaseCon_Handle.getChildren().clear();
+            BaseBuc_Handle.getChildren().clear();
+            BaseVar_Handle.getChildren().clear();
+            BaseOp_Handle.setPadding(new Insets(10, 0, 10, 0));
+        ColeccionDatos.TipoItem = "Diferencia";
+        title_bar.setText(resourceBundle.getString("Diferencia"));
+        TopGrid_Handle.getStyleClass().add("icon-Op");
+        Choice_Handle.setValue("%");
+        Choice_Handle.getItems().add("%");
+    Choice_Handle.getItems().add("/");
+    Choice_Handle.getItems().add("*");
+    Choice_Handle.getItems().add("-");
+    Choice_Handle.getItems().add("+");
+        break;
+            
+        case Si:
+            BaseVar_Handle.getChildren().clear();
+            BaseBuc_Handle.getChildren().clear();
+            BaseOp_Handle.getChildren().clear();
+            BaseCon_Handle.setPadding(new Insets(10, 0, 10, 0));
+        ColeccionDatos.TipoItem = "Si";
+        title_bar.setText(resourceBundle.getString("Si"));
+        TopGrid_Handle.getChildren().remove(startLink_Handle);
+        TopGrid_Handle.getStyleClass().add("icon-Con");
+                ChoiceCon_Handle.setValue("==");
+        ChoiceCon_Handle.getItems().add("==");
+    ChoiceCon_Handle.getItems().add("!=");
+    ChoiceCon_Handle.getItems().add("<");
+    ChoiceCon_Handle.getItems().add(">");
+    ChoiceCon_Handle.getItems().add("<=");
+    ChoiceCon_Handle.getItems().add(">=");
+        break;
+            
+        case Sino:
+            BaseVar_Handle.getChildren().clear();
+            BaseBuc_Handle.getChildren().clear();
+            BaseOp_Handle.getChildren().clear();
+            BaseCon_Handle.setPadding(new Insets(10, 0, 10, 0));
+        ColeccionDatos.TipoItem = "Sino";
+        title_bar.setText(resourceBundle.getString("Sino"));
+        TopGrid_Handle.getChildren().remove(startLink_Handle);
+        TopGrid_Handle.getStyleClass().add("icon-Con");
+        ChoiceCon_Handle.setValue("==");
+        ChoiceCon_Handle.getItems().add("==");
+    ChoiceCon_Handle.getItems().add("!=");
+    ChoiceCon_Handle.getItems().add("<");
+    ChoiceCon_Handle.getItems().add(">");
+    ChoiceCon_Handle.getItems().add("<=");
+    ChoiceCon_Handle.getItems().add(">=");
+        break;
+            
+        case Cuando:
+            BaseVar_Handle.getChildren().clear();
+            BaseBuc_Handle.getChildren().clear();
+            BaseOp_Handle.getChildren().clear();
+            BaseCon_Handle.setPadding(new Insets(10, 0, 10, 0));
+        ColeccionDatos.TipoItem = "Cuando";
+        title_bar.setText(resourceBundle.getString("Cuando"));
+        TopGrid_Handle.getChildren().remove(startLink_Handle);
+        TopGrid_Handle.getStyleClass().add("icon-Con");
+        ChoiceCon_Handle.setValue("==");
+        ChoiceCon_Handle.getItems().add("==");
+    ChoiceCon_Handle.getItems().add("!=");
+    ChoiceCon_Handle.getItems().add("<");
+    ChoiceCon_Handle.getItems().add(">");
+    ChoiceCon_Handle.getItems().add("<=");
+    ChoiceCon_Handle.getItems().add(">=");
+        break;
+            
+        case Mientras:
+            BaseVar_Handle.getChildren().clear();
+            BaseBuc_Handle.getChildren().clear();
+            BaseOp_Handle.getChildren().clear();
+            BaseCon_Handle.setPadding(new Insets(10, 0, 10, 0));
+        ColeccionDatos.TipoItem = "Mientras";
+        title_bar.setText(resourceBundle.getString("Mientras"));
+        TopGrid_Handle.getChildren().remove(startLink_Handle);
+        TopGrid_Handle.getStyleClass().add("icon-Buc");
+        ChoiceCon_Handle.setValue("==");
+        ChoiceCon_Handle.getItems().add("==");
+    ChoiceCon_Handle.getItems().add("!=");
+    ChoiceCon_Handle.getItems().add("<");
+    ChoiceCon_Handle.getItems().add(">");
+    ChoiceCon_Handle.getItems().add("<=");
+    ChoiceCon_Handle.getItems().add(">=");
+        break;
+            
+        case Mientrasque:
+            BaseVar_Handle.getChildren().clear();
+            BaseBuc_Handle.getChildren().clear();
+            BaseOp_Handle.getChildren().clear();
+            BaseCon_Handle.setPadding(new Insets(10, 0, 10, 0));
+        ColeccionDatos.TipoItem = "Mientrasque";
+        title_bar.setText(resourceBundle.getString("Mientrasque"));
+        TopGrid_Handle.getChildren().remove(startLink_Handle);
+        TopGrid_Handle.getStyleClass().add("icon-Buc");
+        ChoiceCon_Handle.setValue("==");
+        ChoiceCon_Handle.getItems().add("==");
+    ChoiceCon_Handle.getItems().add("!=");
+    ChoiceCon_Handle.getItems().add("<");
+    ChoiceCon_Handle.getItems().add(">");
+    ChoiceCon_Handle.getItems().add("<=");
+    ChoiceCon_Handle.getItems().add(">=");
+        break;
+            
+        case Porcada:
+            BaseVar_Handle.getChildren().clear();
+            BaseCon_Handle.getChildren().clear();
+            BaseOp_Handle.getChildren().clear();
+            BaseBuc_Handle.setPadding(new Insets(10, 0, 10, 0));
+        ColeccionDatos.TipoItem = "Porcada";
+        title_bar.setText(resourceBundle.getString("Porcada"));
+        TopGrid_Handle.getStyleClass().add("icon-Buc");
+        break;
+            
+        case Cada:
+            BaseVar_Handle.getChildren().clear();
+            BaseCon_Handle.getChildren().clear();
+            BaseOp_Handle.getChildren().clear();
+            BaseBuc_Handle.setPadding(new Insets(10, 0, 10, 0));
+        ColeccionDatos.TipoItem = "Cada";
+        title_bar.setText(resourceBundle.getString("Cada"));
+        TopGrid_Handle.getStyleClass().add("icon-Buc");
         break;
     }
 }
 public void buildNodeEventHandlers()
 {
  
-//    mAddBtnEventHandleMouseClicked = new EventHandler <MouseEvent>()
-//    {
-//        @Override
-//        public void handle(MouseEvent event)
-//        {
-//            
-//            ObservableList<RowConstraints> Rows =Inputs_Handle.getRowConstraints();
-//            int NRows = Rows.size();
-//            Circle crl = new Circle(10);
-//        }
-//    };
+    mConditionsItemsMouseClicked = new EventHandler <MouseEvent>()
+    {
+        @Override
+        public void handle(MouseEvent event)
+        {
+            UCIC.show(self);
+        }
+    };
+    
+    mConditionsItemsDragDrop = new EventHandler <DragEvent>()
+    {
+        @Override
+        public void handle(DragEvent event)
+        {
+            System.out.println("DROPPED");
+        }
+    };
 }
 
 public void buildNodeDragHandlers() {

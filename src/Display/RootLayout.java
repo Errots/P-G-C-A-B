@@ -18,7 +18,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
@@ -36,13 +35,18 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import org.controlsfx.control.PopOver;
 
 
 public class RootLayout extends AnchorPane {
     
-    @FXML SplitPane base_pane;
+     @FXML SplitPane base_pane;
     @FXML AnchorPane right_pane;
-    @FXML VBox left_pane;
+    @FXML AnchorPane Floatpane;
+    @FXML VBox variables_pane;
+    @FXML VBox conditionals_pane;
+    @FXML VBox operators_pane;
+    @FXML VBox bucles_pane;
     @FXML MenuItem OpenProyect_Handle;
     @FXML MenuItem GenerateCode_Handle;
     @FXML TextArea Output_Handle;
@@ -53,10 +57,10 @@ public class RootLayout extends AnchorPane {
     @FXML MenuItem SaveProyect_Handle;
     @FXML CheckMenuItem ChangeLanguage_Handle;
 
-    private Iconos mDragOverIcon = null;
-    private EventHandler mIconDragOverRoot=null;
-    private EventHandler mIconDragDropped=null;
-    private EventHandler mIconDragOverRightPane=null;
+    public Iconos mDragOverIcon = null;
+    public EventHandler mIconDragOverRoot=null;
+    public EventHandler mIconDragDropped=null;
+    public EventHandler mIconDragOverRightPane=null;
     private EventHandler mMenuItemActionEvent=null;
     private EventHandler mOpenProyectActionEvent=null;
     private EventHandler mGeneradorMouseEvent=null;
@@ -75,6 +79,9 @@ public class RootLayout extends AnchorPane {
     
     public ResourceBundle resourceBundle = ResourceBundle.getBundle("Resource.Language", new Locale("es","ES"));
       
+    public ConditionItemsControl CIC;
+    public PopOver popup;
+    
     public RootLayout(){
         FXMLLoader fxmlLoader = new FXMLLoader(
 		getClass().getResource("/Display/FXMLs/MainLayout.fxml"),resourceBundle
@@ -112,17 +119,31 @@ public class RootLayout extends AnchorPane {
     SaveProyect_Handle.setOnAction(mSaveProyectActionEvent);
     Execute_Handle.setOnMouseClicked(mExecuteMouseEvent);
     ChangeLanguage_Handle.setOnAction(mChangeLanguageActionEvent);
-
+    CIC = new ConditionItemsControl(resourceBundle);
+    popup = new PopOver(CIC.ExtraDropzone_handle);
+    popup.setAutoHide(false);
+    popup.setCloseButtonEnabled(true);
     
+//    right_pane.getChildren().add(CIC);
     // Llenar toda la barra izquierda con iconos para pruebas
-    for (int i = 0; i<TiposdeIconos.values().length;i++)
+     for (int i = 0; i<TiposdeIconos.values().length;i++)
     {
         Iconos icn = new Iconos();
         
         addDragDetection(icn);
         
         icn.setType(TiposdeIconos.values()[i],resourceBundle);
-        left_pane.getChildren().add(icn);
+        if (i<6) {
+            variables_pane.getChildren().add(icn);
+        }else if (i<11) {
+            operators_pane.getChildren().add(icn);
+        }else if (i<14) {
+            conditionals_pane.getChildren().add(icn);
+        }else if (i<18) {
+            bucles_pane.getChildren().add(icn);
+        }
+        
+        
     }
     
     }
@@ -139,6 +160,9 @@ public class RootLayout extends AnchorPane {
             base_pane.setOnDragOver(mIconDragOverRoot);
             right_pane.setOnDragOver(mIconDragOverRightPane);
             right_pane.setOnDragDropped(mIconDragDropped);
+            popup.getRoot().setOnDragOver(CIC.mExtraIconDragOverRightPane);
+            CIC.Extraright_pane.setOnDragOver(CIC.mExtraIconDragOverRoot);
+            CIC.Extraright_pane.setOnDragDropped(CIC.mExtraIconDragDropped);
         
             // get a reference to the clicked DragIcon object
             Iconos icn = (Iconos) event.getSource();
@@ -217,8 +241,10 @@ public class RootLayout extends AnchorPane {
 			
 		@Override
 		public void handle (DragEvent event) {
-				
-			right_pane.removeEventHandler(DragEvent.DRAG_OVER, mIconDragOverRightPane);
+			CIC.Extraright_pane.removeEventHandler(DragEvent.DRAG_OVER, CIC.mExtraIconDragOverRoot);
+			CIC.Extraright_pane.removeEventHandler(DragEvent.DRAG_OVER, CIC.mExtraIconDragOverRightPane);
+			CIC.Extraright_pane.removeEventHandler(DragEvent.DRAG_DROPPED, CIC.mExtraIconDragDropped);	
+                       right_pane.removeEventHandler(DragEvent.DRAG_OVER, mIconDragOverRightPane);
 			right_pane.removeEventHandler(DragEvent.DRAG_DROPPED, mIconDragDropped);
 			base_pane.removeEventHandler(DragEvent.DRAG_OVER, mIconDragOverRoot);
 								
@@ -229,17 +255,17 @@ public class RootLayout extends AnchorPane {
 		if (container != null) {
             if (container.getValue("scene_coords") != null) {
 
-            IconDrag node = new IconDrag(resourceBundle);
+                        IconDrag node = new IconDrag(resourceBundle,popup);
+                        node.setType(TiposdeIconos.valueOf(container.getValue("type")),resourceBundle);
+                        right_pane.getChildren().add(node);
+                        NodesIds.add(node.getId());
 
-                node.setType(TiposdeIconos.valueOf(container.getValue("type")),resourceBundle);
-                right_pane.getChildren().add(node);
-                NodesIds.add(node.getId());
+                        Point2D cursorPoint = container.getValue("scene_coords");
 
-                Point2D cursorPoint = container.getValue("scene_coords");
-
-                node.relocateToPoint(
-                    new Point2D(cursorPoint.getX() - 32, cursorPoint.getY() - 32)
-                );
+                        node.relocateToPoint(
+                            new Point2D(cursorPoint.getX() - 32, cursorPoint.getY() - 32)
+                        );
+                    
 		}
             }
                 //AddLink drag operation
@@ -266,8 +292,8 @@ public class RootLayout extends AnchorPane {
                             
             if (n.getId() == null)
                 continue;
-                            
-        if (n.getId().equals(sourceId))
+           
+            if (n.getId().equals(sourceId))
             source = (IconDrag) n;
                         
         if (n.getId().equals(targetId))
@@ -290,6 +316,133 @@ public class RootLayout extends AnchorPane {
                 
     });
     
+    CIC.mExtraIconDragOverRoot = new EventHandler <DragEvent>() {
+
+        @Override
+        public void handle(DragEvent event) {
+ 
+            Point2D p = CIC.Extraright_pane.screenToLocal(event.getScreenX(), event.getScreenY());
+
+            if (!CIC.Extraright_pane.boundsInLocalProperty().get().contains(p)) {
+                mDragOverIcon.relocateToPoint(new Point2D(event.getSceneX(), event.getSceneY()));
+                return;
+            }
+
+            event.consume();
+        }
+    };
+    
+    CIC.mExtraIconDragOverRightPane = new EventHandler <DragEvent> () {
+
+        @Override
+        public void handle(DragEvent event) {
+
+            event.acceptTransferModes(TransferMode.ANY);
+ 
+            mDragOverIcon.relocateToPoint(
+                    new Point2D(event.getSceneX(), event.getSceneY())
+            );
+
+            event.consume();
+        }
+    };
+ 
+    CIC.mExtraIconDragDropped = new EventHandler <DragEvent> () {
+
+    @Override
+    public void handle(DragEvent event) {
+
+        Contenedor container = (Contenedor) event.getDragboard().getContent(Contenedor.AddNode);
+
+        container.addData("scene_coords",new Point2D(event.getSceneX(), event.getSceneY()));
+
+        ClipboardContent content = new ClipboardContent();
+        content.put(Contenedor.AddNode, container);
+
+        event.getDragboard().setContent(content);
+        event.setDropCompleted(true);
+    }
+};
+    CIC.setOnDragDone (new EventHandler <DragEvent> (){
+			
+		@Override
+		public void handle (DragEvent event) {
+                        CIC.Extraright_pane.removeEventHandler(DragEvent.DRAG_OVER, CIC.mExtraIconDragOverRoot);
+			CIC.Extraright_pane.removeEventHandler(DragEvent.DRAG_OVER, CIC.mExtraIconDragOverRightPane);
+			CIC.Extraright_pane.removeEventHandler(DragEvent.DRAG_DROPPED, CIC.mExtraIconDragDropped);
+			right_pane.removeEventHandler(DragEvent.DRAG_OVER, mIconDragOverRightPane);
+			right_pane.removeEventHandler(DragEvent.DRAG_DROPPED, mIconDragDropped);
+			base_pane.removeEventHandler(DragEvent.DRAG_OVER, mIconDragOverRoot);
+								
+			mDragOverIcon.setVisible(false);
+				
+			Contenedor container =(Contenedor) event.getDragboard().getContent(Contenedor.AddNode);
+				
+		if (container != null) {
+            if (container.getValue("scene_coords") != null) {
+
+                        IconDrag node = new IconDrag(resourceBundle,popup);
+                        node.setType(TiposdeIconos.valueOf(container.getValue("type")),resourceBundle);
+                        CIC.Extraright_pane.getChildren().add(node);
+                        NodesIds.add(node.getId());
+
+                        Point2D cursorPoint = container.getValue("scene_coords");
+
+                        node.relocateToPoint(
+                            new Point2D(cursorPoint.getX() - 32, cursorPoint.getY() - 32)
+                        );
+                    
+		}
+            }
+                //AddLink drag operation
+    container = (Contenedor) event.getDragboard().getContent(Contenedor.AddLink);
+                
+    if (container != null) {
+                    
+    //bind the ends of our link to the nodes whose id's are stored in the drag container
+    String sourceId = container.getValue("source");
+    String targetId = container.getValue("target");
+
+    if (sourceId != null && targetId != null) {
+                        
+        //System.out.println(container.getData());
+        LinkNodo link = new LinkNodo();
+                        
+        //add our link at the top of the rendering order so it's rendered first
+        CIC.Extraright_pane.getChildren().add(0,link);
+                        
+        IconDrag source = null;
+        IconDrag target = null;
+                        
+        for (Node n: CIC.Extraright_pane.getChildren()) {
+                            
+            if (n.getId() == null)
+                continue;
+           
+            if (n.getId().equals(sourceId))
+            source = (IconDrag) n;
+                        
+        if (n.getId().equals(targetId))
+            target = (IconDrag) n;
+                            
+        }
+                        
+        if (source != null && target != null){
+            DataCollector data = source.getDataCollector();
+            data.NombreItem = "";
+            source.AddChild(targetId);
+            target.setDataCollector(data);
+            target.ValueDisable(true);
+            link.bindEnds(source, target);
+        }
+    }
+    }
+System.out.println("DROOOP");
+            event.consume();
+        }  
+                
+    });
+
     }
     
     private void buildMouseEventHandle()
@@ -395,7 +548,7 @@ public class RootLayout extends AnchorPane {
                 Dropzone_handle.setDisable(false);
                 
                 for (DataCollector ColeccionDato : collector.ColeccionDatos) {
-                    IconDrag node = new IconDrag(resourceBundle);
+                    IconDrag node = new IconDrag(resourceBundle,popup);
 
                     node.setType(TiposdeIconos.valueOf(ColeccionDato.TipoItem),resourceBundle);
                     right_pane.getChildren().add(node);
@@ -556,6 +709,11 @@ public class RootLayout extends AnchorPane {
     public void WriteTextOutput(String texto)
     {
         Output_Handle.appendText(texto+"\n");
+    }
+    
+    public EventHandler GetEvents()
+    {
+        return mIconDragOverRightPane;
     }
     
     private void loadView(Locale locale) {

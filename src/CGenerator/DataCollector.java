@@ -10,6 +10,13 @@ public class DataCollector {
     public String TipoItem = "";
     public String ValorItem = "";
     public String Id2 = "";
+    public String FirstCondition ="";
+    public String ConditionType = "";
+    public String SecondCondition ="";
+    public String FirstValue = "";
+    public String OperationType = "";
+    public String SecondValue ="";
+
     public ArrayList<String> Textos = new ArrayList <String> ();
     public boolean noValido = true;
     public double positionX = 0.00;
