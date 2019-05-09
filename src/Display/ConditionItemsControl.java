@@ -34,9 +34,6 @@ public final class ConditionItemsControl extends AnchorPane {
         @FXML public AnchorPane Extraright_pane;
         @FXML public ScrollPane ExtraDropzone_handle;
                 
-        public EventHandler mExtraIconDragDropped=null;
-        public EventHandler mExtraIconDragOverRightPane=null;
-        public EventHandler mExtraIconDragOverRoot=null;
         
         ResourceBundle resourceBundle = null;
         ConditionItemsControl self;

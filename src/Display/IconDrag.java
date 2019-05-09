@@ -992,6 +992,9 @@ public void buildNodeEventHandlers()
         public void handle(MouseEvent event)
         {
             UCIC.show(self);
+            UCIC.setAutoHide(false);
+            UCIC.setCloseButtonEnabled(true);
+            UCIC.setDetachable(false);
         }
     };
     

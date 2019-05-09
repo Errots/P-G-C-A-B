@@ -30,6 +30,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
@@ -57,6 +58,10 @@ public class RootLayout extends AnchorPane {
     @FXML MenuItem SaveProyect_Handle;
     @FXML CheckMenuItem ChangeLanguage_Handle;
 
+    public EventHandler mExtraIconDragDropped=null;
+    public EventHandler mExtraIconDragOverRightPane=null;
+    public EventHandler mExtraIconDragOverRoot=null;
+        
     public Iconos mDragOverIcon = null;
     public EventHandler mIconDragOverRoot=null;
     public EventHandler mIconDragDropped=null;
@@ -79,6 +84,8 @@ public class RootLayout extends AnchorPane {
     
     public ResourceBundle resourceBundle = ResourceBundle.getBundle("Resource.Language", new Locale("es","ES"));
       
+    public ClipboardContent SecondClip = new ClipboardContent();
+    
     public ConditionItemsControl CIC;
     public PopOver popup;
     
@@ -121,8 +128,7 @@ public class RootLayout extends AnchorPane {
     ChangeLanguage_Handle.setOnAction(mChangeLanguageActionEvent);
     CIC = new ConditionItemsControl(resourceBundle);
     popup = new PopOver(CIC.ExtraDropzone_handle);
-    popup.setAutoHide(false);
-    popup.setCloseButtonEnabled(true);
+    
     
 //    right_pane.getChildren().add(CIC);
     // Llenar toda la barra izquierda con iconos para pruebas
@@ -160,9 +166,9 @@ public class RootLayout extends AnchorPane {
             base_pane.setOnDragOver(mIconDragOverRoot);
             right_pane.setOnDragOver(mIconDragOverRightPane);
             right_pane.setOnDragDropped(mIconDragDropped);
-            popup.getRoot().setOnDragOver(CIC.mExtraIconDragOverRightPane);
-            CIC.Extraright_pane.setOnDragOver(CIC.mExtraIconDragOverRoot);
-            CIC.Extraright_pane.setOnDragDropped(CIC.mExtraIconDragDropped);
+            popup.getRoot().setOnDragOver(mExtraIconDragOverRightPane);
+            CIC.Extraright_pane.setOnDragOver(mExtraIconDragOverRoot);
+            popup.getRoot().setOnDragDropped(mExtraIconDragDropped);
         
             // get a reference to the clicked DragIcon object
             Iconos icn = (Iconos) event.getSource();
@@ -241,9 +247,9 @@ public class RootLayout extends AnchorPane {
 			
 		@Override
 		public void handle (DragEvent event) {
-			CIC.Extraright_pane.removeEventHandler(DragEvent.DRAG_OVER, CIC.mExtraIconDragOverRoot);
-			CIC.Extraright_pane.removeEventHandler(DragEvent.DRAG_OVER, CIC.mExtraIconDragOverRightPane);
-			CIC.Extraright_pane.removeEventHandler(DragEvent.DRAG_DROPPED, CIC.mExtraIconDragDropped);	
+			popup.getRoot().removeEventHandler(DragEvent.DRAG_OVER,mExtraIconDragOverRoot);
+			CIC.Extraright_pane.removeEventHandler(DragEvent.DRAG_OVER, mExtraIconDragOverRightPane);
+			popup.getRoot().removeEventHandler(DragEvent.DRAG_DROPPED, mExtraIconDragDropped);	
                        right_pane.removeEventHandler(DragEvent.DRAG_OVER, mIconDragOverRightPane);
 			right_pane.removeEventHandler(DragEvent.DRAG_DROPPED, mIconDragDropped);
 			base_pane.removeEventHandler(DragEvent.DRAG_OVER, mIconDragOverRoot);
@@ -251,8 +257,10 @@ public class RootLayout extends AnchorPane {
 			mDragOverIcon.setVisible(false);
 				
 			Contenedor container =(Contenedor) event.getDragboard().getContent(Contenedor.AddNode);
-				
-		if (container != null) {
+                        System.out.println(container.getData().toString());
+    // Base normal de operacion de objeto            
+
+		if(SecondClip.isEmpty()){if (container != null) {
             if (container.getValue("scene_coords") != null) {
 
                         IconDrag node = new IconDrag(resourceBundle,popup);
@@ -268,21 +276,16 @@ public class RootLayout extends AnchorPane {
                     
 		}
             }
-                //AddLink drag operation
     container = (Contenedor) event.getDragboard().getContent(Contenedor.AddLink);
-                
     if (container != null) {
                     
-    //bind the ends of our link to the nodes whose id's are stored in the drag container
     String sourceId = container.getValue("source");
     String targetId = container.getValue("target");
 
     if (sourceId != null && targetId != null) {
                         
-        //System.out.println(container.getData());
         LinkNodo link = new LinkNodo();
                         
-        //add our link at the top of the rendering order so it's rendered first
         right_pane.getChildren().add(0,link);
                         
         IconDrag source = null;
@@ -310,111 +313,43 @@ public class RootLayout extends AnchorPane {
             link.bindEnds(source, target);
         }
     }
-    }
-            event.consume();
-        }  
-                
-    });
-    
-    CIC.mExtraIconDragOverRoot = new EventHandler <DragEvent>() {
+    }}else
+    {
+        // Secundario de operacion local de objecto
+    Contenedor Secondcontainer =(Contenedor) SecondClip.get(Contenedor.AddNode);
 
-        @Override
-        public void handle(DragEvent event) {
- 
-            Point2D p = CIC.Extraright_pane.screenToLocal(event.getScreenX(), event.getScreenY());
+    if (Secondcontainer.getValue("scene_coords") != null) {
 
-            if (!CIC.Extraright_pane.boundsInLocalProperty().get().contains(p)) {
-                mDragOverIcon.relocateToPoint(new Point2D(event.getSceneX(), event.getSceneY()));
-                return;
-            }
-
-            event.consume();
-        }
-    };
-    
-    CIC.mExtraIconDragOverRightPane = new EventHandler <DragEvent> () {
-
-        @Override
-        public void handle(DragEvent event) {
-
-            event.acceptTransferModes(TransferMode.ANY);
- 
-            mDragOverIcon.relocateToPoint(
-                    new Point2D(event.getSceneX(), event.getSceneY())
-            );
-
-            event.consume();
-        }
-    };
- 
-    CIC.mExtraIconDragDropped = new EventHandler <DragEvent> () {
-
-    @Override
-    public void handle(DragEvent event) {
-
-        Contenedor container = (Contenedor) event.getDragboard().getContent(Contenedor.AddNode);
-
-        container.addData("scene_coords",new Point2D(event.getSceneX(), event.getSceneY()));
-
-        ClipboardContent content = new ClipboardContent();
-        content.put(Contenedor.AddNode, container);
-
-        event.getDragboard().setContent(content);
-        event.setDropCompleted(true);
-    }
-};
-    CIC.setOnDragDone (new EventHandler <DragEvent> (){
-			
-		@Override
-		public void handle (DragEvent event) {
-                        CIC.Extraright_pane.removeEventHandler(DragEvent.DRAG_OVER, CIC.mExtraIconDragOverRoot);
-			CIC.Extraright_pane.removeEventHandler(DragEvent.DRAG_OVER, CIC.mExtraIconDragOverRightPane);
-			CIC.Extraright_pane.removeEventHandler(DragEvent.DRAG_DROPPED, CIC.mExtraIconDragDropped);
-			right_pane.removeEventHandler(DragEvent.DRAG_OVER, mIconDragOverRightPane);
-			right_pane.removeEventHandler(DragEvent.DRAG_DROPPED, mIconDragDropped);
-			base_pane.removeEventHandler(DragEvent.DRAG_OVER, mIconDragOverRoot);
-								
-			mDragOverIcon.setVisible(false);
-				
-			Contenedor container =(Contenedor) event.getDragboard().getContent(Contenedor.AddNode);
-				
-		if (container != null) {
-            if (container.getValue("scene_coords") != null) {
-
-                        IconDrag node = new IconDrag(resourceBundle,popup);
-                        node.setType(TiposdeIconos.valueOf(container.getValue("type")),resourceBundle);
+                        IconDrag node = new IconDrag(resourceBundle,new PopOver(CIC.ExtraDropzone_handle));
+                        node.setType(TiposdeIconos.valueOf(Secondcontainer.getValue("type")),resourceBundle);
                         CIC.Extraright_pane.getChildren().add(node);
                         NodesIds.add(node.getId());
 
-                        Point2D cursorPoint = container.getValue("scene_coords");
+                        Point2D cursorPoint = Secondcontainer.getValue("scene_coords");
 
                         node.relocateToPoint(
                             new Point2D(cursorPoint.getX() - 32, cursorPoint.getY() - 32)
                         );
                     
 		}
-            }
-                //AddLink drag operation
-    container = (Contenedor) event.getDragboard().getContent(Contenedor.AddLink);
+            
+    Secondcontainer = (Contenedor) event.getDragboard().getContent(Contenedor.AddLink);
                 
-    if (container != null) {
+    if (Secondcontainer != null) {
                     
-    //bind the ends of our link to the nodes whose id's are stored in the drag container
-    String sourceId = container.getValue("source");
-    String targetId = container.getValue("target");
+    String sourceId = Secondcontainer.getValue("source");
+    String targetId = Secondcontainer.getValue("target");
 
     if (sourceId != null && targetId != null) {
                         
-        //System.out.println(container.getData());
         LinkNodo link = new LinkNodo();
                         
-        //add our link at the top of the rendering order so it's rendered first
-        CIC.Extraright_pane.getChildren().add(0,link);
+        right_pane.getChildren().add(0,link);
                         
         IconDrag source = null;
         IconDrag target = null;
                         
-        for (Node n: CIC.Extraright_pane.getChildren()) {
+        for (Node n: right_pane.getChildren()) {
                             
             if (n.getId() == null)
                 continue;
@@ -436,13 +371,62 @@ public class RootLayout extends AnchorPane {
             link.bindEnds(source, target);
         }
     }
-    }
-System.out.println("DROOOP");
+    }SecondClip.clear();}
             event.consume();
         }  
                 
     });
+    
+    mExtraIconDragOverRoot = new EventHandler <DragEvent>() {
 
+        @Override
+        public void handle(DragEvent event) {
+ 
+            Point2D p = CIC.Extraright_pane.screenToLocal(event.getScreenX(), event.getScreenY());
+
+            if (!CIC.Extraright_pane.boundsInLocalProperty().get().contains(p)) {
+                mDragOverIcon.relocateToPoint(new Point2D(event.getScreenX(), event.getScreenY()));
+                return;
+            }
+
+            event.consume();
+        }
+    };
+    
+    mExtraIconDragOverRightPane = new EventHandler <DragEvent> () {
+
+        @Override
+        public void handle(DragEvent event) {
+
+            event.acceptTransferModes(TransferMode.ANY);
+ 
+            mDragOverIcon.relocateToPoint(
+                    new Point2D(event.getScreenX(), event.getScreenY())
+            );
+
+            event.consume();
+        }
+    };
+ 
+    mExtraIconDragDropped = new EventHandler <DragEvent> () {
+
+    @Override
+    public void handle(DragEvent event) {
+
+        Contenedor container = (Contenedor) event.getDragboard().getContent(Contenedor.AddNode);
+
+        container.addData("scene_coords",new Point2D(event.getSceneX(), event.getSceneY()));
+
+        ClipboardContent content = new ClipboardContent();
+        content.put(Contenedor.AddNode, container);
+
+        System.out.println(container.getData().toString());
+        
+        SecondClip.put(Contenedor.AddNode, container);
+        event.getDragboard().setContent(content);
+        event.setDropCompleted(true);
+    }
+};
     }
     
     private void buildMouseEventHandle()

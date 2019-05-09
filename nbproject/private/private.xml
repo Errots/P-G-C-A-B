@@ -4,9 +4,10 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/Errot/Documents/GitHub/P-G-C-A-B/src/Display/RootLayout.java</file>
+            <file>file:/C:/Users/Errot/Documents/GitHub/P-G-C-A-B/src/Display/Contenedor.java</file>
             <file>file:/C:/Users/Errot/Documents/GitHub/P-G-C-A-B/src/Display/ConditionItemsControl.java</file>
-            <file>file:/C:/Users/Errot/Documents/GitHub/P-G-C-A-B/src/Configurations/ProyectConfigurator.java</file>
-            <file>file:/C:/Users/Errot/Documents/GitHub/P-G-C-A-B/src/Display/IconDrag.java</file>
+            <file>file:/C:/Users/Errot/Documents/GitHub/P-G-C-A-B/src/Display/Iconos.java</file>
+            <file>file:/C:/Users/Errot/Documents/GitHub/P-G-C-A-B/src/CGenerator/DataCollector.java</file>
         </group>
     </open-files>
 </project-private>

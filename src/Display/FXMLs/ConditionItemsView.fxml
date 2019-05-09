@@ -3,8 +3,8 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<ScrollPane fx:id="ExtraDropzone_handle" disable="true" fitToHeight="true" fitToWidth="true" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="400.0" style="-fx-border-radius: 10; -fx-border-color: red; -fx-border-width: 5;" styleClass="ItemsPane" stylesheets="@Aplicacion.css" vbarPolicy="NEVER" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<ScrollPane fx:id="ExtraDropzone_handle" fitToHeight="true" fitToWidth="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="400.0" style="-fx-border-radius: 10; -fx-border-color: red; -fx-border-width: 5;" styleClass="ItemsPane" stylesheets="@Aplicacion.css" vbarPolicy="NEVER" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <content>
-      <AnchorPane fx:id="Extraright_pane" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="1000.0" style="-fx-border-color: blue; -fx-border-radius: 5; -fx-border-width: 5;" styleClass="ItemsPane" stylesheets="@Aplicacion.css" />
+      <AnchorPane fx:id="Extraright_pane" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="2000.0" style="-fx-border-color: blue; -fx-border-radius: 5; -fx-border-width: 5;" styleClass="ItemsPane" stylesheets="@Aplicacion.css" />
    </content>
 </ScrollPane>
