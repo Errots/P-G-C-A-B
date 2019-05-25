@@ -18,6 +18,7 @@ public class DataCollector {
     public String SecondValue ="";
 
     public ArrayList<String> Textos = new ArrayList <String> ();
+    public ArrayList<DataCollector> Conditionales = new ArrayList <DataCollector>();
     public boolean noValido = true;
     public double positionX = 0.00;
     public double positionY = 0.00;

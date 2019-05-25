@@ -36,6 +36,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Popup;
 import org.controlsfx.control.PopOver;
 
 
@@ -66,6 +67,7 @@ public class RootLayout extends AnchorPane {
     public EventHandler mIconDragOverRoot=null;
     public EventHandler mIconDragDropped=null;
     public EventHandler mIconDragOverRightPane=null;
+    private EventHandler mRightPaneClickEvent=null;
     private EventHandler mMenuItemActionEvent=null;
     private EventHandler mOpenProyectActionEvent=null;
     private EventHandler mGeneradorMouseEvent=null;
@@ -123,11 +125,15 @@ public class RootLayout extends AnchorPane {
     OpenProyect_Handle.setOnAction(mOpenProyectActionEvent);
     Generator_Handle.setOnMouseClicked(mGeneradorMouseEvent);
     NewProyect_Handle.setOnMouseClicked(mNewProyectMouseEvent);
+    right_pane.setOnMouseClicked(mRightPaneClickEvent);
+
     SaveProyect_Handle.setOnAction(mSaveProyectActionEvent);
     Execute_Handle.setOnMouseClicked(mExecuteMouseEvent);
     ChangeLanguage_Handle.setOnAction(mChangeLanguageActionEvent);
-    CIC = new ConditionItemsControl(resourceBundle);
+    CIC = new ConditionItemsControl();
     popup = new PopOver(CIC.ExtraDropzone_handle);
+    
+    
     
     
 //    right_pane.getChildren().add(CIC);
@@ -252,18 +258,20 @@ public class RootLayout extends AnchorPane {
 			popup.getRoot().removeEventHandler(DragEvent.DRAG_DROPPED, mExtraIconDragDropped);	
                        right_pane.removeEventHandler(DragEvent.DRAG_OVER, mIconDragOverRightPane);
 			right_pane.removeEventHandler(DragEvent.DRAG_DROPPED, mIconDragDropped);
-			base_pane.removeEventHandler(DragEvent.DRAG_OVER, mIconDragOverRoot);
+                        base_pane.removeEventHandler(DragEvent.DRAG_OVER, mIconDragOverRoot);
 								
 			mDragOverIcon.setVisible(false);
 				
 			Contenedor container =(Contenedor) event.getDragboard().getContent(Contenedor.AddNode);
-                        System.out.println(container.getData().toString());
+                        System.out.println(event.getAcceptingObject());
+
     // Base normal de operacion de objeto            
 
 		if(SecondClip.isEmpty()){if (container != null) {
+                    System.out.println(container.getData().toString());
             if (container.getValue("scene_coords") != null) {
 
-                        IconDrag node = new IconDrag(resourceBundle,popup);
+                        IconDrag node = new IconDrag(resourceBundle,popup,CIC);
                         node.setType(TiposdeIconos.valueOf(container.getValue("type")),resourceBundle);
                         right_pane.getChildren().add(node);
                         NodesIds.add(node.getId());
@@ -278,6 +286,7 @@ public class RootLayout extends AnchorPane {
             }
     container = (Contenedor) event.getDragboard().getContent(Contenedor.AddLink);
     if (container != null) {
+        System.out.println(container.getData().toString());
                     
     String sourceId = container.getValue("source");
     String targetId = container.getValue("target");
@@ -315,66 +324,81 @@ public class RootLayout extends AnchorPane {
     }
     }}else
     {
+        System.out.println(event.getAcceptingObject());
         // Secundario de operacion local de objecto
     Contenedor Secondcontainer =(Contenedor) SecondClip.get(Contenedor.AddNode);
 
     if (Secondcontainer.getValue("scene_coords") != null) {
+        ConditionItemsControl NCIC = new ConditionItemsControl();
+        PopOver Npopup = new PopOver(NCIC.ExtraDropzone_handle);
+        
+        Npopup.getRoot().setOnDragOver(mExtraIconDragOverRightPane);
+        NCIC.Extraright_pane.setOnDragOver(mExtraIconDragOverRoot);
+        Npopup.getRoot().setOnDragDropped(mExtraIconDragDropped);
+        IconDrag node = new IconDrag(resourceBundle,Npopup,NCIC);
+        node.setType(TiposdeIconos.valueOf(Secondcontainer.getValue("type")),resourceBundle);
+        CIC.Extraright_pane.getChildren().add(node);
+        NodesIds.add(node.getId());
 
-                        IconDrag node = new IconDrag(resourceBundle,new PopOver(CIC.ExtraDropzone_handle));
-                        node.setType(TiposdeIconos.valueOf(Secondcontainer.getValue("type")),resourceBundle);
-                        CIC.Extraright_pane.getChildren().add(node);
-                        NodesIds.add(node.getId());
+        Point2D cursorPoint = Secondcontainer.getValue("scene_coords");
 
-                        Point2D cursorPoint = Secondcontainer.getValue("scene_coords");
+        node.relocateToPoint(
+            new Point2D(cursorPoint.getX() - 32, cursorPoint.getY() - 32)
+        );
 
-                        node.relocateToPoint(
-                            new Point2D(cursorPoint.getX() - 32, cursorPoint.getY() - 32)
-                        );
-                    
-		}
-            
-    Secondcontainer = (Contenedor) event.getDragboard().getContent(Contenedor.AddLink);
-                
-    if (Secondcontainer != null) {
-                    
-    String sourceId = Secondcontainer.getValue("source");
-    String targetId = Secondcontainer.getValue("target");
-
-    if (sourceId != null && targetId != null) {
-                        
-        LinkNodo link = new LinkNodo();
-                        
-        right_pane.getChildren().add(0,link);
-                        
-        IconDrag source = null;
-        IconDrag target = null;
-                        
-        for (Node n: right_pane.getChildren()) {
-                            
-            if (n.getId() == null)
-                continue;
-           
-            if (n.getId().equals(sourceId))
-            source = (IconDrag) n;
-                        
-        if (n.getId().equals(targetId))
-            target = (IconDrag) n;
-                            
-        }
-                        
-        if (source != null && target != null){
-            DataCollector data = source.getDataCollector();
-            data.NombreItem = "";
-            source.AddChild(targetId);
-            target.setDataCollector(data);
-            target.ValueDisable(true);
-            link.bindEnds(source, target);
-        }
     }
-    }SecondClip.clear();}
+    SecondClip.clear();}
             event.consume();
         }  
                 
+    });
+    
+    popup.getScene().setOnDragDone(new EventHandler <DragEvent> (){
+
+        @Override
+        public void handle(DragEvent event) {
+            
+        
+        Contenedor container = (Contenedor) event.getDragboard().getContent(Contenedor.AddLink);
+        
+        if (container != null) {
+
+        String sourceId = container.getValue("source");
+        String targetId = container.getValue("target");
+
+        if (sourceId != null && targetId != null) {
+
+            LinkNodo link = new LinkNodo();
+
+            CIC.Extraright_pane.getChildren().add(0,link);
+
+            IconDrag source = null;
+            IconDrag target = null;
+
+            for (Node n: CIC.Extraright_pane.getChildren()) {
+
+                if (n.getId() == null)
+                    continue;
+
+                if (n.getId().equals(sourceId))
+                source = (IconDrag) n;
+
+            if (n.getId().equals(targetId))
+                target = (IconDrag) n;
+
+            }
+
+            if (source != null && target != null){
+                DataCollector data = source.getDataCollector();
+                data.NombreItem = "";
+                source.AddChild(targetId);
+                target.setDataCollector(data);
+                target.ValueDisable(true);
+                link.bindEnds(source, target);
+            }
+        }}
+            event.consume();
+        }
     });
     
     mExtraIconDragOverRoot = new EventHandler <DragEvent>() {
@@ -443,6 +467,15 @@ public class RootLayout extends AnchorPane {
             }
         };
         
+        mRightPaneClickEvent = new EventHandler <MouseEvent>()
+        {
+            @Override
+            public void handle(MouseEvent event)
+            {
+                event.consume();
+            }
+        };
+        
         mGeneradorMouseEvent = new EventHandler <MouseEvent>()
         {
             @Override
@@ -459,6 +492,20 @@ public class RootLayout extends AnchorPane {
                         {
                             IconDrag Icn =  (IconDrag)n;
                             DataCollector drag = Icn.getDataCollector();
+                            drag.Conditionales.clear();
+
+                            if (Icn.getType() == TiposdeIconos.Si ||Icn.getType() == TiposdeIconos.Sino || Icn.getType() == TiposdeIconos.Mientras || Icn.getType() == TiposdeIconos.Cuando || Icn.getType() == TiposdeIconos.Mientrasque || Icn.getType() == TiposdeIconos.Cada || Icn.getType() == TiposdeIconos.Porcada ) {
+                                if (Icn.getConditionalNodes() != null) {
+                                    for(Node q: Icn.getConditionalNodes())
+                                    {
+                                        
+                                        IconDrag Icn2 =  (IconDrag)q;
+                                        DataCollector drag2 = Icn2.getDataCollector();
+                                        if(drag2.noValido == false){Correcto = false;}
+                                        drag.Conditionales.add(drag2);
+                                    }
+                                }
+                            }
                             if(drag.noValido == false){Correcto = false;}
                             ColeccionDatos.add(Icn.getDataCollector());
                         }   
@@ -532,7 +579,7 @@ public class RootLayout extends AnchorPane {
                 Dropzone_handle.setDisable(false);
                 
                 for (DataCollector ColeccionDato : collector.ColeccionDatos) {
-                    IconDrag node = new IconDrag(resourceBundle,popup);
+                    IconDrag node = new IconDrag(resourceBundle,popup,CIC);
 
                     node.setType(TiposdeIconos.valueOf(ColeccionDato.TipoItem),resourceBundle);
                     right_pane.getChildren().add(node);
@@ -577,6 +624,18 @@ public class RootLayout extends AnchorPane {
                         {
                             IconDrag Icn =  (IconDrag)n;
                             DataCollector drag = Icn.getDataCollector();
+                            drag.Conditionales.clear();
+                            if (Icn.getType() == TiposdeIconos.Si ||Icn.getType() == TiposdeIconos.Sino || Icn.getType() == TiposdeIconos.Mientras || Icn.getType() == TiposdeIconos.Cuando || Icn.getType() == TiposdeIconos.Mientrasque || Icn.getType() == TiposdeIconos.Cada || Icn.getType() == TiposdeIconos.Porcada ) {
+                                if (Icn.getConditionalNodes() != null) {
+                                    for(Node q: Icn.getConditionalNodes())
+                                    {
+                                        IconDrag Icn2 =  (IconDrag)q;
+                                        DataCollector drag2 = Icn2.getDataCollector();
+                                        if(drag2.noValido == false){Correcto = false;}
+                                        drag.Conditionales.add(drag2);
+                                    }
+                                }
+                            }
                             if(drag.noValido == false){Correcto = false;}
                             ColeccionDatos.add(Icn.getDataCollector());
                         }   
@@ -612,27 +671,32 @@ public class RootLayout extends AnchorPane {
         };
     }
     
-    private static String printLines(String name, InputStream ins) throws Exception {
+    private static ArrayList<String> printLines(String name, InputStream ins) throws Exception {
     String line = null;
+    ArrayList<String> Lines = new ArrayList<String>();
     BufferedReader in = new BufferedReader(
         new InputStreamReader(ins));
     while ((line = in.readLine()) != null) {
         System.out.println(name + " " + line);
-        return line;
+        Lines.add(line);
     }
-    return "";
+    return Lines;
   }
 
   private void runProcess(String command) throws Exception {
     Process pro = Runtime.getRuntime().exec(command);
-    String Valor = printLines(command + " stdout:", pro.getInputStream());
-    String Error = printLines(command + " stderr:", pro.getErrorStream());
-      if (!Valor.isEmpty()) {
-          WriteTextOutput(Valor);
+    ArrayList<String> Valor = printLines(command + " stdout:", pro.getInputStream());
+    ArrayList<String> Error = printLines(command + " stderr:", pro.getErrorStream());
+    for(String valor:Valor){
+      if (!valor.isEmpty()) {
+          WriteTextOutput(valor);
       }
-        if (!Error.isEmpty()) {
-          WriteTextOutput(Error);
-        }
+    }
+    for(String error:Error){
+      if (!error.isEmpty()) {
+          WriteTextOutput(error);
+      }
+    }
     pro.waitFor();
     System.out.println(command + " exitValue() " + pro.exitValue());
   }

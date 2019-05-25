@@ -40,6 +40,7 @@ import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 
 import javafx.scene.shape.Circle;
+import javafx.stage.Popup;
 import org.controlsfx.control.PopOver;
 
 public class IconDrag extends AnchorPane{
@@ -63,7 +64,6 @@ public class IconDrag extends AnchorPane{
     @FXML private TextField FirstValue_Handle;
     @FXML private TextField SecondValue_Handle;
     
-    
     @FXML private VBox BaseBuc_Handle;    
     @FXML private Circle BucLink_Handle;
     @FXML private TextField BucCount_Handle;
@@ -85,7 +85,6 @@ public class IconDrag extends AnchorPane{
     
     private LinkNodo mDragLink = null;
     private AnchorPane right_pane = null;
-
     private EventHandler <MouseEvent> mLeftLinkHandleDragDetected;
     private EventHandler <MouseEvent> mRightLinkHandleDragDetected;
     private EventHandler <MouseEvent> mVarNameEventHandleMouseExit;
@@ -94,6 +93,7 @@ public class IconDrag extends AnchorPane{
     private EventHandler <MouseEvent> mConditionsItemsMouseClicked;
     private EventHandler <DragEvent> mConditionsItemsDragDrop;
 
+    private EventHandler <DragEvent> mSecondLeftLinkHandleDragDropped;
     private EventHandler <DragEvent> mLeftLinkHandleDragDropped;
     private EventHandler <DragEvent> mRightLinkHandleDragDropped;
     private EventHandler <DragEvent> mContextLinkDragOver;  
@@ -115,11 +115,16 @@ public class IconDrag extends AnchorPane{
     ResourceBundle resourceBundle = null;
 
     private final IconDrag self;
-    private PopOver UCIC; 
+    private PopOver Popup; 
+    private ConditionItemsControl UCIC;
+    
+    private ArrayList<Node> ConditionalNodes = new ArrayList<Node>() ;
+    
+    public boolean secondaryValuelink = false;
     
     boolean NameX = false;
     boolean ValX = false;
-    public IconDrag(ResourceBundle resource, PopOver CIC) {
+    public IconDrag(ResourceBundle resource, PopOver popup,ConditionItemsControl CIC) {
     
     FXMLLoader fxmlLoader = new FXMLLoader(
     getClass().getResource("/Display/FXMLs/IconoMovible.fxml"),resource
@@ -128,6 +133,7 @@ public class IconDrag extends AnchorPane{
     fxmlLoader.setRoot(this); 
     fxmlLoader.setController(this);
     self = this;  
+    Popup = popup;
     UCIC = CIC;
     try { 
     fxmlLoader.load();
@@ -147,11 +153,15 @@ private void initialize()
     buildLinkDragHandlers();
     addBtn_Handle.setOnMouseClicked(mAddBtnEventHandleMouseClicked);
     ConditionsItems_Handle.setOnMouseClicked(mConditionsItemsMouseClicked);
-    ConditionsItems_Handle.setOnDragDropped(mConditionsItemsDragDrop);
-
+    ConditionsItemsBuc_Handle.setOnMouseClicked(mConditionsItemsMouseClicked);
     endLink_Handle.setOnDragDetected(mLeftLinkHandleDragDetected);
     startLink_Handle.setOnDragDetected(mRightLinkHandleDragDetected);
     endLink_Handle.setOnDragDropped(mLeftLinkHandleDragDropped);
+    SecondValueLink_Handle.setOnDragDropped(mSecondLeftLinkHandleDragDropped);
+    FirstValueLink_Handle.setOnDragDropped(mLeftLinkHandleDragDropped);
+    BucLink_Handle.setOnDragDropped(mLeftLinkHandleDragDropped);
+    FirstCondLink_Handle.setOnDragDropped(mLeftLinkHandleDragDropped);
+    SecondCondLink_Handle.setOnDragDropped(mSecondLeftLinkHandleDragDropped);
     startLink_Handle.setOnDragDropped(mRightLinkHandleDragDropped);
     mDragLink = new LinkNodo();
     mDragLink.setVisible(false);
@@ -174,7 +184,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
         switch(mType)
         {
         case Entero:
-            if(!varValue_Handle.getText().matches("[0-9]*[^.]")|| varValue_Handle.getText().isEmpty())
+            if(!varValue_Handle.getText().matches("[0-9]*[^.]\\W*[0-9]*[^.]")|| varValue_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo se aceptan numeros enteros");
@@ -201,7 +211,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
 
         case Flotante:
-            if(!varValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| varValue_Handle.getText().isEmpty())
+            if(!varValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*")|| varValue_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo se aceptan numeros decimales");
@@ -228,7 +238,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
 
         case Doble:
-            if(!varValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| varValue_Handle.getText().isEmpty())
+            if(!varValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*")|| varValue_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo se aceptan numeros decimales");
@@ -255,7 +265,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
 
         case Texto:
-            if(!varValue_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| varValue_Handle.getText().isEmpty())
+            if(!varValue_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?\\W*")|| varValue_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo se aceptan letras");
@@ -282,7 +292,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
 
         case Mostrar:
-            if(!varValue_Handle.getText().matches("[0-9]*[a-zA-Z]*[.]*")|| varValue_Handle.getText().isEmpty())
+            if(!varValue_Handle.getText().matches("[0-9]*[a-zA-Z]*[.]*\\W*")|| varValue_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo se aceptan letras");
@@ -319,7 +329,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
             
         case Mas:
-            if(!FirstValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| FirstValue_Handle.getText().isEmpty())
+            if(!FirstValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstValue_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo acceptan numeros");
@@ -327,115 +337,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
                 ColeccionDatos.noValido = false;
                 ValX = false;
             }
-            else if(!SecondValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| SecondValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan letras");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                NameX = false;
-            }else {
-                ValX = true;NameX = true;
-                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
-                ColeccionDatos.NombreItem = varName_Handle.getText();
-                }
-                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
-                ColeccionDatos.ValorItem = varValue_Handle.getText();
-                }
-            }
-        break;
-            
-        case Menos:
-            if(!FirstValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| FirstValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo acceptan numeros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
-            }
-            else if(!SecondValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| SecondValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan letras");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                NameX = false;
-            }else {
-                ValX = true;NameX = true;
-                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
-                ColeccionDatos.NombreItem = varName_Handle.getText();
-                }
-                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
-                ColeccionDatos.ValorItem = varValue_Handle.getText();
-                }
-            }
-        break;
-            
-        case Por:
-            if(!FirstValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| FirstValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo acceptan numeros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
-            }
-            else if(!SecondValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| SecondValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan letras");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                NameX = false;
-            }else {
-                ValX = true;NameX = true;
-                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
-                ColeccionDatos.NombreItem = varName_Handle.getText();
-                }
-                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
-                ColeccionDatos.ValorItem = varValue_Handle.getText();
-                }
-            }
-        break;
-            
-        case Entre:
-            if(!FirstValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| FirstValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo acceptan numeros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
-            }
-            else if(!SecondValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| SecondValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan letras");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                NameX = false;
-            }else {
-                ValX = true;NameX = true;
-                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
-                ColeccionDatos.NombreItem = varName_Handle.getText();
-                }
-                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
-                ColeccionDatos.ValorItem = varValue_Handle.getText();
-                }
-            }
-        break;
-            
-        case Diferencia:
-            if(!FirstValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| FirstValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo acceptan numeros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
-            }
-            else if(!SecondValue_Handle.getText().matches("[0-9]+\\.[0-9]+")|| SecondValue_Handle.getText().isEmpty())
+            else if(!SecondValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondValue_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo se aceptan letras");
@@ -447,15 +349,129 @@ timer.scheduleAtFixedRate(new TimerTask() {
                 if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
                 ColeccionDatos.FirstValue = FirstValue_Handle.getText();
                 }
-                if (!ColeccionDatos.SecondCondition.equals(SecondCond_Handle.getText())){           
-                ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
+                if (!ColeccionDatos.SecondValue.equals(SecondValue_Handle.getText())){           
+                ColeccionDatos.SecondValue = SecondValue_Handle.getText();
                 }
-                ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+                ColeccionDatos.OperationType = Choice_Handle.getValue().toString();
+            }
+        break;
+            
+        case Menos:
+            if(!FirstValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo acceptan numeros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else if(!SecondValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                 if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
+                ColeccionDatos.FirstValue = FirstValue_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondValue.equals(SecondValue_Handle.getText())){           
+                ColeccionDatos.SecondValue = SecondValue_Handle.getText();
+                }
+                ColeccionDatos.OperationType = Choice_Handle.getValue().toString();
+            }
+        break;
+            
+        case Por:
+            if(!FirstValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo acceptan numeros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else if(!SecondValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                 if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
+                ColeccionDatos.FirstValue = FirstValue_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondValue.equals(SecondValue_Handle.getText())){           
+                ColeccionDatos.SecondValue = SecondValue_Handle.getText();
+                }
+                ColeccionDatos.OperationType = Choice_Handle.getValue().toString();
+
+            }
+        break;
+            
+        case Entre:
+            if(!FirstValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo acceptan numeros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else if(!SecondValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan letras");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                 if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
+                ColeccionDatos.FirstValue = FirstValue_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondValue.equals(SecondValue_Handle.getText())){           
+                ColeccionDatos.SecondValue = SecondValue_Handle.getText();
+                }
+                ColeccionDatos.OperationType = Choice_Handle.getValue().toString();
+
+            }
+        break;
+            
+        case Diferencia:
+            if(!FirstValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo acceptan numeros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                ValX = false;
+            }
+            else if(!SecondValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondValue_Handle.getText().isEmpty())
+            {
+                Tooltip nota = new Tooltip();
+                nota.setText("Solo se aceptan numeros");
+                root_pane.setStyle("-fx-background-color:red;");
+                ColeccionDatos.noValido = false;
+                NameX = false;
+            }else {
+                ValX = true;NameX = true;
+                 if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
+                ColeccionDatos.FirstValue = FirstValue_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondValue.equals(SecondValue_Handle.getText())){           
+                ColeccionDatos.SecondValue = SecondValue_Handle.getText();
+                }
+                ColeccionDatos.OperationType = Choice_Handle.getValue().toString();
             }
         break;
             
         case Si:
-            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| FirstCondition_Handle.getText().isEmpty())
+            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstCondition_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo acceptan numeros");
@@ -463,7 +479,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
                 ColeccionDatos.noValido = false;
                 ValX = false;
             }
-            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| SecondCond_Handle.getText().isEmpty())
+            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondCond_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo se aceptan letras");
@@ -479,11 +495,20 @@ timer.scheduleAtFixedRate(new TimerTask() {
                 ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
                 }
                 ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) && ConditionalNodes != UCIC.Extraright_pane.getChildren() && !UCIC.Extraright_pane.getChildren().isEmpty()) {
+                    ConditionalNodes.clear();
+                    for(Node n: UCIC.Extraright_pane.getChildren())
+                    {
+                        ConditionalNodes.add(n);
+                    }
             }
+            }
+            
+            //------------------------------------------------------------------------------------
         break;
             
         case Sino:
-            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| FirstCondition_Handle.getText().isEmpty())
+            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstCondition_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo acceptan numeros");
@@ -491,7 +516,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
                 ColeccionDatos.noValido = false;
                 ValX = false;
             }
-            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| SecondCond_Handle.getText().isEmpty())
+            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondCond_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo se aceptan letras");
@@ -507,11 +532,17 @@ timer.scheduleAtFixedRate(new TimerTask() {
                 ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
                 }
                 ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) || ConditionalNodes == null && ConditionalNodes != UCIC.Extraright_pane.getChildren()) {
+                for(Node n: UCIC.Extraright_pane.getChildren())
+                {
+                    ConditionalNodes.add(n);
+                }
+            }
             }
         break;
             
         case Cuando:
-            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| FirstCondition_Handle.getText().isEmpty())
+            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstCondition_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo acceptan numeros");
@@ -519,7 +550,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
                 ColeccionDatos.noValido = false;
                 ValX = false;
             }
-            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| SecondCond_Handle.getText().isEmpty())
+            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondCond_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo se aceptan letras");
@@ -535,11 +566,17 @@ timer.scheduleAtFixedRate(new TimerTask() {
                 ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
                 }
                 ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) || ConditionalNodes == null && ConditionalNodes != UCIC.Extraright_pane.getChildren()) {
+                for(Node n: UCIC.Extraright_pane.getChildren())
+                {
+                    ConditionalNodes.add(n);
+                }
+            }
             }
         break;
             
         case Mientras:
-            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| FirstCondition_Handle.getText().isEmpty())
+            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstCondition_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo acceptan numeros");
@@ -547,7 +584,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
                 ColeccionDatos.noValido = false;
                 ValX = false;
             }
-            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| SecondCond_Handle.getText().isEmpty())
+            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondCond_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo se aceptan letras");
@@ -563,11 +600,17 @@ timer.scheduleAtFixedRate(new TimerTask() {
                 ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
                 }
                 ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) || ConditionalNodes == null && ConditionalNodes != UCIC.Extraright_pane.getChildren()) {
+                for(Node n: UCIC.Extraright_pane.getChildren())
+                {
+                    ConditionalNodes.add(n);
+                }
+            }
             }
         break;
         
         case Mientrasque:
-            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| FirstCondition_Handle.getText().isEmpty())
+            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstCondition_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo acceptan numeros");
@@ -575,7 +618,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
                 ColeccionDatos.noValido = false;
                 ValX = false;
             }
-            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| SecondCond_Handle.getText().isEmpty())
+            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondCond_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo se aceptan letras");
@@ -591,11 +634,17 @@ timer.scheduleAtFixedRate(new TimerTask() {
                 ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
                 }
                 ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) || ConditionalNodes == null && ConditionalNodes != UCIC.Extraright_pane.getChildren()) {
+                for(Node n: UCIC.Extraright_pane.getChildren())
+                {
+                    ConditionalNodes.add(n);
+                }
+            }
             }
         break;
             
         case Porcada:
-            if(!BucCount_Handle.getText().matches("[0-9]*[^.]")|| BucCount_Handle.getText().isEmpty())
+            if(!BucCount_Handle.getText().matches("[0-9]*[^.]\\W*[0-9]*[^.]")|| BucCount_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo acceptan numeros");
@@ -604,17 +653,21 @@ timer.scheduleAtFixedRate(new TimerTask() {
                 ValX = false;
             }else {
                 ValX = true;NameX = true;
-                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
-                ColeccionDatos.NombreItem = varName_Handle.getText();
+                
+                if (!ColeccionDatos.FirstValue.equals(BucCount_Handle.getText())){           
+                ColeccionDatos.FirstValue = BucCount_Handle.getText();
                 }
-                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
-                ColeccionDatos.ValorItem = varValue_Handle.getText();
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) || ConditionalNodes == null && ConditionalNodes != UCIC.Extraright_pane.getChildren()) {
+                for(Node n: UCIC.Extraright_pane.getChildren())
+                {
+                    ConditionalNodes.add(n);
                 }
+            }
             }
         break;
             
         case Cada:
-            if(!BucCount_Handle.getText().matches("[0-9]*[^.]")|| BucCount_Handle.getText().isEmpty())
+            if(!BucCount_Handle.getText().matches("[0-9]*[^.]\\W*[0-9]*[^.]")|| BucCount_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
                 nota.setText("Solo acceptan numeros");
@@ -623,12 +676,15 @@ timer.scheduleAtFixedRate(new TimerTask() {
                 ValX = false;
             }else {
                 ValX = true;NameX = true;
-                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
-                ColeccionDatos.NombreItem = varName_Handle.getText();
+                if (!ColeccionDatos.FirstValue.equals(BucCount_Handle.getText())){           
+                ColeccionDatos.FirstValue = BucCount_Handle.getText();
                 }
-                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
-                ColeccionDatos.ValorItem = varValue_Handle.getText();
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) || ConditionalNodes == null && ConditionalNodes != UCIC.Extraright_pane.getChildren()) {
+                for(Node n: UCIC.Extraright_pane.getChildren())
+                {
+                    ConditionalNodes.add(n);
                 }
+            }
             }
         break;
         }
@@ -685,6 +741,87 @@ public TiposdeIconos getType(){return mType;}
 public void ValueDisable(boolean disable){varValue_Handle.setDisable(disable); }
 public void setDataCollector(DataCollector data)
 {
+    switch(data.TipoItem)
+    {
+        case "Entero":
+            ChangeValues(data);
+        break;
+
+        case "Flotante":
+            ChangeValues(data);
+        break;
+
+        case "Doble":
+            ChangeValues(data);
+        break;
+
+        case "Texto":
+            ChangeValues(data);
+        break;
+
+        case "Leer":
+           ChangeValues(data);
+        break;
+
+        case "Mostrar":
+            ChangeValues(data);
+        break;
+
+        case "Mas":
+            data.ValorItem = data.FirstValue+data.OperationType+data.SecondValue;
+            ChangeValues(data);
+        break;
+
+        case "Menos":
+            data.ValorItem = data.FirstValue+data.OperationType+data.SecondValue;
+            ChangeValues(data);
+        break;
+
+        case "Entre":
+            data.ValorItem = data.FirstValue+data.OperationType+data.SecondValue;
+            ChangeValues(data);
+        break;
+
+        case "Por":
+            data.ValorItem = data.FirstValue+data.OperationType+data.SecondValue;
+            ChangeValues(data);
+        break;
+
+        case "Diferencia":
+            data.ValorItem = data.FirstValue+data.OperationType+data.SecondValue;
+            ChangeValues(data);
+        break;
+
+        case "Si":
+            ChangeValues(data);
+        break;
+
+        case "Sino":
+            ChangeValues(data);
+        break;
+
+        case "Cuando":
+            ChangeValues(data);
+        break;
+
+        case "Mientras":
+            ChangeValues(data);
+        break;
+
+        case "Mientrasque":
+            ChangeValues(data);
+        break;
+
+        case "Porcada":
+            data.ValorItem = data.FirstValue;
+            ChangeValues(data);
+        break;
+
+        case "Cada":
+            data.ValorItem = data.FirstValue;
+            ChangeValues(data);
+        break;
+    }
     if (!data.NombreItem.isEmpty()&&data.positionX !=0.00 && data.positionY != 0.00) {
         setLayoutX(data.positionX);
         setLayoutY(data.positionY);
@@ -695,13 +832,130 @@ public void setDataCollector(DataCollector data)
         ColeccionDatos.Textos = data.Textos;
         ChildIds.addAll(data.ChildIds);
         mLinkIds.addAll(data.mLinkIds);
-        
     }
-    ColeccionDatos.noValido = data.noValido;
-    ColeccionDatos.ValorItem = data.ValorItem;
-    varValue_Handle.setText(data.ValorItem);
-    
 }
+
+private void ChangeValues(DataCollector data){
+    switch(mType)
+    {
+        case Entero:
+            varValue_Handle.setText(data.ValorItem);
+            ColeccionDatos.Id2 = data.Id;
+        break;
+
+        case Flotante:
+            varValue_Handle.setText(data.ValorItem);
+            ColeccionDatos.Id2 = data.Id;
+        break;
+
+        case Doble:
+            varValue_Handle.setText(data.ValorItem);
+            ColeccionDatos.Id2 = data.Id;
+        break;
+
+        case Texto:
+            varValue_Handle.setText(data.ValorItem);
+            ColeccionDatos.Id2 = data.Id;
+        break;
+
+        case Mostrar:
+            varValue_Handle.setText(data.ValorItem);
+            ColeccionDatos.Id2 = data.Id;
+        break;
+
+        case Mas:
+            if (!secondaryValuelink) 
+                FirstValue_Handle.setText(data.ValorItem);
+            else
+                SecondValue_Handle.setText(data.ValorItem);
+            ColeccionDatos.Id2 = data.Id;
+        break;
+
+        case Menos:
+            if (!secondaryValuelink) 
+                FirstValue_Handle.setText(data.ValorItem);
+            else
+                SecondValue_Handle.setText(data.ValorItem);
+            ColeccionDatos.Id2 = data.Id;
+        break;
+
+        case Entre:
+            if (!secondaryValuelink) 
+                FirstValue_Handle.setText(data.ValorItem);
+            else
+                SecondValue_Handle.setText(data.ValorItem);
+            ColeccionDatos.Id2 = data.Id;
+        break;
+
+        case Por:
+            if (!secondaryValuelink) 
+                FirstValue_Handle.setText(data.ValorItem);
+            else
+                SecondValue_Handle.setText(data.ValorItem);
+            ColeccionDatos.Id2 = data.Id;
+        break;
+
+        case Diferencia:
+            if (!secondaryValuelink) 
+                FirstValue_Handle.setText(data.ValorItem);
+            else
+                SecondValue_Handle.setText(data.ValorItem);
+            ColeccionDatos.Id2 = data.Id;
+        break;
+
+        case Si:
+            if (!secondaryValuelink) 
+                FirstCondition_Handle.setText(data.ValorItem);
+            else
+                SecondCond_Handle.setText(data.ValorItem);
+            ColeccionDatos.Id2 = data.Id;
+        break;
+
+        case Sino:
+            if (!secondaryValuelink) 
+                FirstCondition_Handle.setText(data.ValorItem);
+            else
+                SecondCond_Handle.setText(data.ValorItem);
+            ColeccionDatos.Id2 = data.Id;
+        break;
+
+        case Cuando:
+            if (!secondaryValuelink) 
+                FirstCondition_Handle.setText(data.ValorItem);
+            else
+                SecondCond_Handle.setText(data.ValorItem);
+            ColeccionDatos.Id2 = data.Id;
+        break;
+
+        case Mientras:
+            if (!secondaryValuelink) 
+                FirstCondition_Handle.setText(data.ValorItem);
+            else
+                SecondCond_Handle.setText(data.ValorItem);
+            ColeccionDatos.Id2 = data.Id;
+        break;
+
+        case Mientrasque:
+            if (!secondaryValuelink) 
+                FirstCondition_Handle.setText(data.ValorItem);
+            else
+                SecondCond_Handle.setText(data.ValorItem);
+            ColeccionDatos.Id2 = data.Id;
+        break;
+
+        case Porcada:
+            BucCount_Handle.setText(data.ValorItem);
+            ColeccionDatos.Id2 = data.Id;
+        break;
+
+        case Cada:
+            BucCount_Handle.setText(data.ValorItem);
+            ColeccionDatos.Id2 = data.Id;
+        break;
+    }
+
+}
+
 public DataCollector getDataCollector(){return ColeccionDatos;}
     
 public void setType(TiposdeIconos type,ResourceBundle resourceBundle){
@@ -983,6 +1237,7 @@ public void setType(TiposdeIconos type,ResourceBundle resourceBundle){
         break;
     }
 }
+ public ArrayList<Node> getConditionalNodes(){return ConditionalNodes;}
 public void buildNodeEventHandlers()
 {
  
@@ -991,10 +1246,20 @@ public void buildNodeEventHandlers()
         @Override
         public void handle(MouseEvent event)
         {
-            UCIC.show(self);
-            UCIC.setAutoHide(false);
-            UCIC.setCloseButtonEnabled(true);
-            UCIC.setDetachable(false);
+            Popup.show(self);
+            Popup.setAutoHide(false);
+            Popup.setCloseButtonEnabled(true);
+            Popup.setTitle(mType.name());
+            
+            if (UCIC.ActualId == null ? self.getId() == null : !UCIC.ActualId.equals(self.getId())) {
+                UCIC.Extraright_pane.getChildren().clear();
+            }
+            UCIC.ActualId = self.getId();
+            if (ConditionalNodes != null && !ConditionalNodes.isEmpty()) {
+                for(Node q: ConditionalNodes){
+                    UCIC.Extraright_pane.getChildren().add(q);
+                }
+            }
         }
     };
     
@@ -1255,7 +1520,41 @@ mLeftLinkHandleDragDropped = new EventHandler <DragEvent> () {
 	container.addData("target", getId());
 					
 	content.put(Contenedor.AddLink, container);
+        
+	secondaryValuelink = false;		
+	event.getDragboard().setContent(content);
+	event.setDropCompleted(true);
+	event.consume();				
+	}
+	};
+mSecondLeftLinkHandleDragDropped = new EventHandler <DragEvent> () {
+
+	@Override
+	public void handle(DragEvent event) {
+
+	getParent().setOnDragOver(null);
+	getParent().setOnDragDropped(null);
+										
+	//get the drag data.  If it's null, abort.  
+	//This isn't the drag event we're looking for.
+	Contenedor container = (Contenedor) event.getDragboard().getContent(Contenedor.AddLink);
+								
+	if (container == null)return;
+
+	//hide the draggable NodeLink and remove it from the right-hand AnchorPane's children
+	mDragLink.setVisible(false);
+	right_pane.getChildren().remove(0);
 					
+	Circle link_handle = (Circle) event.getSource();
+					
+	ClipboardContent content = new ClipboardContent();
+					
+	//pass the UUID of the target node for later lookup
+	container.addData("target", getId());
+					
+	content.put(Contenedor.AddLink, container);
+					
+        secondaryValuelink = true;
 	event.getDragboard().setContent(content);
 	event.setDropCompleted(true);
 	event.consume();				
@@ -1292,7 +1591,7 @@ mLeftLinkHandleDragDropped = new EventHandler <DragEvent> () {
 	mDragLink.setVisible(false);
 	right_pane.getChildren().remove(0);
 					
-	event.setDropCompleted(true);
+ 	event.setDropCompleted(true);
 	event.consume();
 	}
 				

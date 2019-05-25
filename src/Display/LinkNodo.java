@@ -117,32 +117,201 @@ public void bindEnds (IconDrag source, IconDrag target) {
     VBox SBox= (VBox) source.getChildren().get(0);
     GridPane Pane = (GridPane) SBox.getChildren().get(0);
     CSource = (Circle) Pane.getChildren().get(0);
-    VBox TBox= (VBox) target.getChildren().get(0);
-    VBox TVbox = (VBox) TBox.getChildren().get(1);
+    VBox TVbox = (VBox)  target.getChildren().get(0);
+    VBox TVboxSecond;
+    VBox TVboxChild;
+    HBox THboxChild;
     GridPane TPane= null;
-    for (Node n : TVbox.getChildren()) {
-        if (n instanceof GridPane) {
-            TPane = (GridPane) n;
-        }
-    }
-    if (TPane != null) {
-        CTarget = (Circle) TPane.getChildren().get(0);
+    switch(target.getType()){
+        
+            case Entero:
+                 TVboxSecond = (VBox)  TVbox.getChildren().get(1);
+                 TVboxChild = (VBox)  TVboxSecond.getChildren().get(0);
+                for (Node n : TVboxChild.getChildren()) {
+                    if (n instanceof GridPane) {
+                        TPane = (GridPane) n;
+                    }
+                }
+                
+            break;
+            case Flotante:
+                TVboxSecond = (VBox)  TVbox.getChildren().get(1);
+                TVboxChild = (VBox)  TVboxSecond.getChildren().get(0);
+                for (Node n : TVboxChild.getChildren()) {
+                    if (n instanceof GridPane) {
+                        TPane = (GridPane) n;
+                    }
+                }
+            break;
+            case Doble:
+                TVboxSecond = (VBox)  TVbox.getChildren().get(1);
+                TVboxChild = (VBox)  TVboxSecond.getChildren().get(0);
+                for (Node n : TVboxChild.getChildren()) {
+                    if (n instanceof GridPane) {
+                        TPane = (GridPane) n;
+                    }
+                }
+            break;
+            case Texto:
+                TVboxSecond = (VBox)  TVbox.getChildren().get(1);
+                TVboxChild = (VBox)  TVboxSecond.getChildren().get(0);
+                for (Node n : TVboxChild.getChildren()) {
+                    if (n instanceof GridPane) {
+                        TPane = (GridPane) n;
+                    }
+                }
+            break;
+            case Leer:
+                TVboxSecond = (VBox)  TVbox.getChildren().get(1);
+                TVboxChild = (VBox)  TVboxSecond.getChildren().get(0);
+                for (Node n : TVboxChild.getChildren()) {
+                    if (n instanceof GridPane) {
+                        TPane = (GridPane) n;
+                    }
+                }
+            break;
+            case Mostrar:
+                TVboxSecond = (VBox)  TVbox.getChildren().get(1);
+                TVboxChild = (VBox)  TVboxSecond.getChildren().get(0);
+                for (Node n : TVboxChild.getChildren()) {
+                    if (n instanceof GridPane) {
+                        TPane = (GridPane) n;
+                    }
+                }
+            break;
+            case Mas:
+                
+                TVboxSecond = (VBox)  TVbox.getChildren().get(2);
+                TVboxChild = (VBox)  TVboxSecond.getChildren().get(0);
+                
+                    if (target.secondaryValuelink) 
+                        TPane = (GridPane) TVboxChild.getChildren().get(2);
+                    else TPane = (GridPane) TVboxChild.getChildren().get(0);
+                
+            break;
+            case Menos:
+                TVboxSecond = (VBox)  TVbox.getChildren().get(2);
+                TVboxChild = (VBox)  TVboxSecond.getChildren().get(0);
+                
+                    if (target.secondaryValuelink) 
+                        TPane = (GridPane) TVboxChild.getChildren().get(2);
+                    else TPane = (GridPane) TVboxChild.getChildren().get(0);
+                
+
+            break;
+            case Entre:
+                TVboxSecond = (VBox)  TVbox.getChildren().get(2);
+                TVboxChild = (VBox)  TVboxSecond.getChildren().get(0);
+                
+                    if (target.secondaryValuelink) 
+                        TPane = (GridPane) TVboxChild.getChildren().get(2);
+                    else TPane = (GridPane) TVboxChild.getChildren().get(0);
+                
+
+            break;
+            case Por:
+                 TVboxSecond = (VBox)  TVbox.getChildren().get(2);
+                TVboxChild = (VBox)  TVboxSecond.getChildren().get(0);
+                   if (target.secondaryValuelink) 
+                        TPane = (GridPane) TVboxChild.getChildren().get(2);
+                    else TPane = (GridPane) TVboxChild.getChildren().get(0);
+                
+
+            break;
+            case Diferencia:
+                 TVboxSecond = (VBox)  TVbox.getChildren().get(2);
+                TVboxChild = (VBox)  TVboxSecond.getChildren().get(0);
+                    if (target.secondaryValuelink) 
+                        TPane = (GridPane) TVboxChild.getChildren().get(2);
+                    else TPane = (GridPane) TVboxChild.getChildren().get(0);
+                
+
+            break;
+            case Si:
+                 TVboxSecond = (VBox)  TVbox.getChildren().get(3);
+                 THboxChild = (HBox)  TVboxSecond.getChildren().get(0);
+                    if (target.secondaryValuelink) 
+                        TPane = (GridPane) THboxChild.getChildren().get(2);
+                    else TPane = (GridPane) THboxChild.getChildren().get(0);
+                
+
+            break;
+            case Sino:
+                TVboxSecond = (VBox)  TVbox.getChildren().get(3);
+                 THboxChild = (HBox)  TVboxSecond.getChildren().get(0);
+                    if (target.secondaryValuelink) 
+                        TPane = (GridPane) THboxChild.getChildren().get(2);
+                    else TPane = (GridPane) THboxChild.getChildren().get(0);
+                
+            break;
+            case Cuando:
+                TVboxSecond = (VBox)  TVbox.getChildren().get(3);
+                 THboxChild = (HBox)  TVboxSecond.getChildren().get(0);
+                    if (target.secondaryValuelink) 
+                        TPane = (GridPane) THboxChild.getChildren().get(2);
+                    else TPane = (GridPane) THboxChild.getChildren().get(0);
+                
+            break;
+            case Mientras:
+                TVboxSecond = (VBox)  TVbox.getChildren().get(3);
+                 THboxChild = (HBox)  TVboxSecond.getChildren().get(0);
+                    if (target.secondaryValuelink) 
+                        TPane = (GridPane) THboxChild.getChildren().get(2);
+                    else TPane = (GridPane) THboxChild.getChildren().get(0);
+                
+            break;
+            case Mientrasque:
+                TVboxSecond = (VBox)  TVbox.getChildren().get(3);
+                 THboxChild = (HBox)  TVboxSecond.getChildren().get(0);
+                    if (target.secondaryValuelink) 
+                        TPane = (GridPane) THboxChild.getChildren().get(2);
+                    else TPane = (GridPane) THboxChild.getChildren().get(0);
+                
+            break;
+            case Porcada:
+                TVboxSecond = (VBox)  TVbox.getChildren().get(4);
+                TVboxChild = (VBox)  TVboxSecond.getChildren().get(0);
+                for (Node n : TVboxChild.getChildren()) {
+                    if (n instanceof GridPane) {
+                        TPane = (GridPane) n;
+                    }
+                }
+            break;
+            case Cada:
+                TVboxSecond = (VBox)  TVbox.getChildren().get(4);
+                TVboxChild = (VBox)  TVboxSecond.getChildren().get(0);
+                for (Node n : TVboxChild.getChildren()) {
+                    if (n instanceof GridPane) {
+                        TPane = (GridPane) n;
+                    }
+                }
+            break;
+             
+            
     }
     
-    node_link.startXProperty().bind(
+    if (TPane != null) {
+        for (Node n : TPane.getChildren()) {
+            if (n instanceof Circle) {
+                CTarget = (Circle) n;
+            }
+        }
+         
+        node_link.startXProperty().bind(
         Bindings.add(source.layoutXProperty(), CSource.getLayoutX()));
         
-    node_link.startYProperty().bind(
-        Bindings.add(source.layoutYProperty(), CSource.getLayoutY() ));
-        
-    node_link.endXProperty().bind(
-        Bindings.add(target.layoutXProperty(), CTarget.getLayoutX()));
-        
-    node_link.endYProperty().bind(
-        Bindings.add(target.layoutYProperty(), (TPane.getLayoutY()+40)));
-    
-    source.registerLink (getId());
-    target.registerLink (getId());
+        node_link.startYProperty().bind(
+            Bindings.add(source.layoutYProperty(), CSource.getLayoutY() ));
+
+        node_link.endXProperty().bind(
+            Bindings.add(target.layoutXProperty(), CTarget.getLayoutX()));
+
+        node_link.endYProperty().bind(
+            Bindings.add(target.layoutYProperty(), (TPane.getLayoutY()+40)));
+
+        source.registerLink (getId());
+        target.registerLink (getId());
+    }
 }
 	
 }

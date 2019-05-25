@@ -30,27 +30,24 @@ import javafx.stage.Popup;
 import javafx.stage.Stage;
 import org.controlsfx.control.PopOver;
 
-public final class ConditionItemsControl extends AnchorPane {
+public class ConditionItemsControl extends AnchorPane {
         @FXML public AnchorPane Extraright_pane;
         @FXML public ScrollPane ExtraDropzone_handle;
-                
-        
-        ResourceBundle resourceBundle = null;
-        ConditionItemsControl self;
+         
+        public EventHandler mExtraIconDragDropped=null;
 
-    public ConditionItemsControl(ResourceBundle resource) {
+        public String ActualId;
+        
+    public ConditionItemsControl() {
         FXMLLoader fxmlLoader = new FXMLLoader(
     getClass().getResource("/Display/FXMLs/ConditionItemsView.fxml"));
         
     fxmlLoader.setController(this); 
     try {
     fxmlLoader.load();
-    resourceBundle = resource; 
-    self = this;
 
     } catch (IOException exception) {
     throw new RuntimeException(exception);
     }
     }
-
 }
