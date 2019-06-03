@@ -80,29 +80,29 @@ public class Copilador
                 comandos.add(comando);   
             break;
             
-            case "Leer":
-                incluir = "import java.util.Scanner;";
-                objeto = "Scanner leer = new Scanner(System.in);";
-                switch(data.OperationType){
-                    case "Entero":
-                        comando ="int "+data.NombreItem+" = leer.nextInt();";
-                        break;
-                        case "Flotante":
-                        comando ="float "+data.NombreItem+" = leer.nextFloat();";
-                        break;
-                        case "Doble":
-                        comando ="double "+data.NombreItem+" = leer.nextDouble();";
-                        break;
-                        case "Texto":
-                        comando ="String "+data.NombreItem+" = leer.nextLine();";
-                        break;
-                }
-                
-                comandos.add(0, objeto);
-                comandos.add(comando);
-                if(!imports.contains(incluir)) imports.add(incluir);
-
-            break;
+//            case "Leer":
+//                incluir = "import java.util.Scanner;";
+//                objeto = "Scanner leer = new Scanner(System.in);";
+//                switch(data.OperationType){
+//                    case "Entero":
+//                        comando ="int "+data.NombreItem+" = leer.nextInt();";
+//                        break;
+//                        case "Flotante":
+//                        comando ="float "+data.NombreItem+" = leer.nextFloat();";
+//                        break;
+//                        case "Doble":
+//                        comando ="double "+data.NombreItem+" = leer.nextDouble();";
+//                        break;
+//                        case "Texto":
+//                        comando ="String "+data.NombreItem+" = leer.nextLine();";
+//                        break;
+//                }
+//                
+//                comandos.add(0, objeto);
+//                comandos.add(comando);
+//                if(!imports.contains(incluir)) imports.add(incluir);
+//
+//            break;
             
             case "Mostrar":
                 comando ="System.out.println(\""+data.ValorItem+"\");";

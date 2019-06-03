@@ -186,15 +186,13 @@ public void Check(){
         {
         case Entero:
             if (!VariableConecValue) {
-                if(!varValue_Handle.getText().matches("[0-9]*[^.][+*/-]*[0-9]*")|| varValue_Handle.getText().isEmpty())
-                {
-                    if (varValue_Handle.getText().matches("[^a-z^A-Z]")) {
-                        Tooltip nota = new Tooltip();
-                        nota.setText("Solo se aceptan numeros enteros");
-                        root_pane.setStyle("-fx-background-color:red;");
-                        ColeccionDatos.noValido = false;
-                        ValX = false;
-                    }
+                if(!varValue_Handle.getText().matches("\\d+")|| varValue_Handle.getText().isEmpty())
+                {    
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan numeros enteros");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
                 }
                 else if(!varName_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| varName_Handle.getText().isEmpty())
                 {
@@ -1024,15 +1022,13 @@ public void Check(){
             
         case Porcada:
             if (!VariableConecValue) {
-                if(!BucCount_Handle.getText().matches("[0-9]*[^.][+*/-]*[0-9]*")|| BucCount_Handle.getText().isEmpty())
+                if(!BucCount_Handle.getText().matches("\\d+")|| BucCount_Handle.getText().isEmpty())
                 {
-                    if (BucCount_Handle.getText().matches("[^a-z^A-Z]")) {
-                        Tooltip nota = new Tooltip();
-                        nota.setText("Solo acceptan numeros");
-                        root_pane.setStyle("-fx-background-color:red;");
-                        ColeccionDatos.noValido = false;
-                        ValX = false;
-                    }
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo acceptan numeros");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
                 }else {
                 ValX = true;NameX = true;
                 
@@ -1063,15 +1059,13 @@ public void Check(){
             
         case Cada:
             if (!VariableConecValue) {
-                if(!BucCount_Handle.getText().matches("[0-9]*[^.][+*/-]*[0-9]*")|| BucCount_Handle.getText().isEmpty())
+                if(!BucCount_Handle.getText().matches("\\d+")|| BucCount_Handle.getText().isEmpty())
                 {
-                    if (BucCount_Handle.getText().matches("[^a-z^A-Z]")) {
-                        Tooltip nota = new Tooltip();
-                        nota.setText("Solo acceptan numeros");
-                        root_pane.setStyle("-fx-background-color:red;");
-                        ColeccionDatos.noValido = false;
-                        ValX = false;
-                    }
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo acceptan numeros");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
                 }else {
                 ValX = true;NameX = true;
                 if (!ColeccionDatos.FirstValue.equals(BucCount_Handle.getText())){           
@@ -1165,9 +1159,9 @@ public void setDataCollector(DataCollector data)
             ChangeValues(data);
         break;
 
-        case "Leer":
-           ChangeValues(data);
-        break;
+//        case "Leer":
+//           ChangeValues(data);
+//        break;
 
         case "Mostrar":
             ChangeValues(data);

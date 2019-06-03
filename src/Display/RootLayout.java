@@ -771,7 +771,7 @@ public class RootLayout extends AnchorPane {
                 }
                 if ((in = is.read()) == -1 && !IsCopiler) {
                     WriteTextOutput(output.toString());
-                    Output_Handle.setOnKeyPressed(mEnterKeyboardEvent);
+//                    Output_Handle.setOnKeyPressed(mEnterKeyboardEvent);
                 }
             } catch (IOException ex) {
                 exp = ex;
