@@ -25,6 +25,8 @@ public class PreCodeDisplay extends AnchorPane {
     @FXML Button SaveBtn_Handle;
     @FXML Button QuitBtn_Handle;
     
+    String Path ="";
+    
     private EventHandler mQuitBtnClicked=null;
     private EventHandler mSaveBtnClicked=null;
     
@@ -90,7 +92,7 @@ public class PreCodeDisplay extends AnchorPane {
             public void handle(ActionEvent event)
             {
                 GeneradorArchivo archivo = new GeneradorArchivo();
-                archivo.CrearArchivo(comandos,incluidores);
+                archivo.CrearArchivo(comandos,incluidores,Path);
                 Stage stage = (Stage) SaveBtn_Handle.getScene().getWindow();
                 stage.close();
                 event.consume();

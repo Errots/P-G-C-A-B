@@ -12,12 +12,14 @@
 package Display;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class Main extends Application {
     
@@ -35,11 +37,19 @@ public class Main extends Application {
         primaryStage.show();
         }catch(Exception e){e.printStackTrace();}
         root.setCenter(new RootLayout());
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                Platform.exit();
+            }
+        });
     }
 
     
     public static void main(String[] args) {
         launch(args);
     }
+    
+    
     
 }

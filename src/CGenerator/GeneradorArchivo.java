@@ -53,10 +53,12 @@ catch(IOException e){
 }
     }
 
-public void CrearArchivo(ArrayList<String> texto,ArrayList<String> imports) {
+public void CrearArchivo(ArrayList<String> texto,ArrayList<String> imports, String Path) {
 FileChooser chooser = new FileChooser();
 chooser.setTitle("Selecciones donde guardar");
-chooser.setInitialDirectory(new java.io.File(super.GetPath()));
+    if (Path == null) {
+        chooser.setInitialDirectory(new java.io.File("."));
+    }else chooser.setInitialDirectory(new java.io.File(Path));
 File selectedFile = null;
 selectedFile = chooser.showSaveDialog(null);
 if (selectedFile != null){

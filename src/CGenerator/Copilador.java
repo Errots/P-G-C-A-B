@@ -10,7 +10,7 @@ public class Copilador
     ArrayList<String> comandos = new ArrayList<>();
    
     
-    public boolean RecuperarDatos(ArrayList<DataCollector> data) 
+    public boolean RecuperarDatos(ArrayList<DataCollector> data, String Path ) 
     {
         try{
         for (DataCollector Data: data)
@@ -18,6 +18,7 @@ public class Copilador
             GenerarComando(Data);
         }
         PreCodeDisplay code = new PreCodeDisplay();
+        code.Path = Path;
         code.WriteText(comandos, imports);
         return true;
         }catch(Exception e){System.out.println(e.getMessage());return false;}
@@ -82,7 +83,21 @@ public class Copilador
             case "Leer":
                 incluir = "import java.util.Scanner;";
                 objeto = "Scanner leer = new Scanner(System.in);";
-                comando ="String "+data.NombreItem+" = leer.nextLine();";
+                switch(data.OperationType){
+                    case "Entero":
+                        comando ="int "+data.NombreItem+" = leer.nextInt();";
+                        break;
+                        case "Flotante":
+                        comando ="float "+data.NombreItem+" = leer.nextFloat();";
+                        break;
+                        case "Doble":
+                        comando ="double "+data.NombreItem+" = leer.nextDouble();";
+                        break;
+                        case "Texto":
+                        comando ="String "+data.NombreItem+" = leer.nextLine();";
+                        break;
+                }
+                
                 comandos.add(0, objeto);
                 comandos.add(comando);
                 if(!imports.contains(incluir)) imports.add(incluir);

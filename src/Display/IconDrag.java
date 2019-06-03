@@ -12,6 +12,7 @@ import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.function.Consumer;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -51,6 +52,8 @@ public class IconDrag extends AnchorPane{
     @FXML private Circle endLink_Handle;
     @FXML private Label title_bar;
     @FXML private Label close_button;
+    @FXML private ChoiceBox VarChoice_Handle;
+
     @FXML private TextField varValue_Handle;
     @FXML private TextField varName_Handle;
     @FXML private ImageView addBtn_Handle;
@@ -115,16 +118,19 @@ public class IconDrag extends AnchorPane{
     ResourceBundle resourceBundle = null;
 
     private final IconDrag self;
-    private PopOver Popup; 
     private ConditionItemsControl UCIC;
     
     private ArrayList<Node> ConditionalNodes = new ArrayList<Node>() ;
     
     public boolean secondaryValuelink = false;
     
+    private boolean VariableConecValue = false;
+    private boolean SecondVariableConecValue = false;
+
+    
     boolean NameX = false;
     boolean ValX = false;
-    public IconDrag(ResourceBundle resource, PopOver popup,ConditionItemsControl CIC) {
+    public IconDrag(ResourceBundle resource,ConditionItemsControl CIC) {
     
     FXMLLoader fxmlLoader = new FXMLLoader(
     getClass().getResource("/Display/FXMLs/IconoMovible.fxml"),resource
@@ -133,7 +139,6 @@ public class IconDrag extends AnchorPane{
     fxmlLoader.setRoot(this); 
     fxmlLoader.setController(this);
     self = this;  
-    Popup = popup;
     UCIC = CIC;
     try { 
     fxmlLoader.load();
@@ -173,24 +178,40 @@ private void initialize()
             right_pane = (AnchorPane) getParent();				
 	}
 				
-});
-    
-    
-    
-    
-timer.scheduleAtFixedRate(new TimerTask() {
-  @Override
-  public void run() {
-        switch(mType)
+}); 
+}
+
+public void Check(){
+    switch(mType)
         {
         case Entero:
-            if(!varValue_Handle.getText().matches("[0-9]*[^.]\\W*[0-9]*[^.]")|| varValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan numeros enteros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
+            if (!VariableConecValue) {
+                if(!varValue_Handle.getText().matches("[0-9]*[^.][+*/-]*[0-9]*")|| varValue_Handle.getText().isEmpty())
+                {
+                    if (varValue_Handle.getText().matches("[^a-z^A-Z]")) {
+                        Tooltip nota = new Tooltip();
+                        nota.setText("Solo se aceptan numeros enteros");
+                        root_pane.setStyle("-fx-background-color:red;");
+                        ColeccionDatos.noValido = false;
+                        ValX = false;
+                    }
+                }
+                else if(!varName_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| varName_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    NameX = false;
+                }else {
+                    ValX = true;NameX = true;
+                    if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+                    ColeccionDatos.NombreItem = varName_Handle.getText();
+                    }
+                    if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+                    ColeccionDatos.ValorItem = varValue_Handle.getText();
+                    }
+                }
             }
             else if(!varName_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| varName_Handle.getText().isEmpty())
             {
@@ -211,13 +232,30 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
 
         case Flotante:
-            if(!varValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*")|| varValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan numeros decimales");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
+            if (!VariableConecValue) {
+                if(!varValue_Handle.getText().matches("[0-9]*\\.*[0-9]*[+*/-]*[0-9]*\\.*[0-9]*")|| varValue_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan numeros decimales");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }else if(!varName_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| varName_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    NameX = false;
+                }else {
+                    ValX = true;NameX = true;
+                    if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+                    ColeccionDatos.NombreItem = varName_Handle.getText();
+                    }
+                    if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+                    ColeccionDatos.ValorItem = varValue_Handle.getText();
+                    }
+                }
             }
             else if(!varName_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| varName_Handle.getText().isEmpty())
             {
@@ -238,13 +276,30 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
 
         case Doble:
-            if(!varValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*")|| varValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan numeros decimales");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
+            if (!VariableConecValue) {
+                if(!varValue_Handle.getText().matches("[0-9]*\\.*[0-9]*[+*/-]*[0-9]*\\.*[0-9]*")|| varValue_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan numeros decimales");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }else if(!varName_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| varName_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    NameX = false;
+                }else {
+                    ValX = true;NameX = true;
+                    if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+                    ColeccionDatos.NombreItem = varName_Handle.getText();
+                    }
+                    if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+                    ColeccionDatos.ValorItem = varValue_Handle.getText();
+                    }
+                }
             }
             else if(!varName_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| varName_Handle.getText().isEmpty())
             {
@@ -265,13 +320,30 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
 
         case Texto:
-            if(!varValue_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?\\W*")|| varValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan letras");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
+            if (!VariableConecValue) {
+                if(varValue_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }else if(!varName_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| varName_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    NameX = false;
+                }else {
+                    ValX = true;NameX = true;
+                    if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+                    ColeccionDatos.NombreItem = varName_Handle.getText();
+                    }
+                    if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+                    ColeccionDatos.ValorItem = varValue_Handle.getText();
+                    }
+                }
             }
             else if(!varName_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| varName_Handle.getText().isEmpty())
             {
@@ -292,13 +364,24 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
 
         case Mostrar:
-            if(!varValue_Handle.getText().matches("[0-9]*[a-zA-Z]*[.]*\\W*")|| varValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan letras");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
+            if (!VariableConecValue) {
+                if(varValue_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }
+                else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.NombreItem.equals(varName_Handle.getText())){           
+                ColeccionDatos.NombreItem = varName_Handle.getText();
+                }
+                if (!ColeccionDatos.ValorItem.equals(varValue_Handle.getText())){           
+                ColeccionDatos.ValorItem = varValue_Handle.getText();
+                }
+            }
             }
             else {
                 ValX = true;NameX = true;
@@ -312,6 +395,7 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
 
         case Leer:
+            
             if(!varName_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.?")|| varName_Handle.getText().isEmpty())
             {
                 Tooltip nota = new Tooltip();
@@ -326,24 +410,50 @@ timer.scheduleAtFixedRate(new TimerTask() {
                 ColeccionDatos.NombreItem = varName_Handle.getText();
                 }
             }
+            ColeccionDatos.OperationType = VarChoice_Handle.getValue().toString();
+
         break;
             
         case Mas:
-            if(!FirstValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo acceptan numeros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
+            if (!VariableConecValue) {
+                if(!FirstValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstValue_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo acceptan numeros");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }
+                else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
+                ColeccionDatos.FirstValue = FirstValue_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondValue.equals(SecondValue_Handle.getText())){           
+                ColeccionDatos.SecondValue = SecondValue_Handle.getText();
+                }
+                ColeccionDatos.OperationType = Choice_Handle.getValue().toString();
             }
-            else if(!SecondValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan letras");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                NameX = false;
+            }
+            else if (!SecondVariableConecValue) {
+                if(!SecondValue_Handle.getText().matches("[0-9]*\\.*[0-9]*[+*/-]*[0-9]*\\.*[0-9]*")|| SecondValue_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    NameX = false;
+                }
+                else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
+                ColeccionDatos.FirstValue = FirstValue_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondValue.equals(SecondValue_Handle.getText())){           
+                ColeccionDatos.SecondValue = SecondValue_Handle.getText();
+                }
+                ColeccionDatos.OperationType = Choice_Handle.getValue().toString();
+            }
             }else {
                 ValX = true;NameX = true;
                 if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
@@ -357,21 +467,45 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
             
         case Menos:
-            if(!FirstValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo acceptan numeros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
+            if (!VariableConecValue) {
+                if(!FirstValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstValue_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo acceptan numeros");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }
+                else {
+                ValX = true;NameX = true;
+                 if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
+                ColeccionDatos.FirstValue = FirstValue_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondValue.equals(SecondValue_Handle.getText())){           
+                ColeccionDatos.SecondValue = SecondValue_Handle.getText();
+                }
+                ColeccionDatos.OperationType = Choice_Handle.getValue().toString();
             }
-            else if(!SecondValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan letras");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                NameX = false;
+            }
+            else if (!SecondVariableConecValue) {
+                if(!SecondValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondValue_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    NameX = false;
+                }
+                else {
+                ValX = true;NameX = true;
+                 if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
+                ColeccionDatos.FirstValue = FirstValue_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondValue.equals(SecondValue_Handle.getText())){           
+                ColeccionDatos.SecondValue = SecondValue_Handle.getText();
+                }
+                ColeccionDatos.OperationType = Choice_Handle.getValue().toString();
+            }
             }else {
                 ValX = true;NameX = true;
                  if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
@@ -385,21 +519,44 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
             
         case Por:
-            if(!FirstValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo acceptan numeros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
+            if (!VariableConecValue) {
+                if(!FirstValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstValue_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo acceptan numeros");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }else {
+                ValX = true;NameX = true;
+                 if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
+                ColeccionDatos.FirstValue = FirstValue_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondValue.equals(SecondValue_Handle.getText())){           
+                ColeccionDatos.SecondValue = SecondValue_Handle.getText();
+                }
+                ColeccionDatos.OperationType = Choice_Handle.getValue().toString();
+
             }
-            else if(!SecondValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan letras");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                NameX = false;
+            }else if (!SecondVariableConecValue) {
+                if(!SecondValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondValue_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    NameX = false;
+                }else {
+                ValX = true;NameX = true;
+                 if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
+                ColeccionDatos.FirstValue = FirstValue_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondValue.equals(SecondValue_Handle.getText())){           
+                ColeccionDatos.SecondValue = SecondValue_Handle.getText();
+                }
+                ColeccionDatos.OperationType = Choice_Handle.getValue().toString();
+
+            }
             }else {
                 ValX = true;NameX = true;
                  if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
@@ -414,21 +571,45 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
             
         case Entre:
-            if(!FirstValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo acceptan numeros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
+            if (!VariableConecValue) {
+                if(!FirstValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstValue_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo acceptan numeros");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }else {
+                ValX = true;NameX = true;
+                 if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
+                ColeccionDatos.FirstValue = FirstValue_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondValue.equals(SecondValue_Handle.getText())){           
+                ColeccionDatos.SecondValue = SecondValue_Handle.getText();
+                }
+                ColeccionDatos.OperationType = Choice_Handle.getValue().toString();
+
             }
-            else if(!SecondValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan letras");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                NameX = false;
+            }
+            else if (!SecondVariableConecValue) {
+                if(!SecondValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondValue_Handle.getText().isEmpty())
+               {
+                   Tooltip nota = new Tooltip();
+                   nota.setText("Solo se aceptan letras");
+                   root_pane.setStyle("-fx-background-color:red;");
+                   ColeccionDatos.noValido = false;
+                   NameX = false;
+               }else {
+                ValX = true;NameX = true;
+                 if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
+                ColeccionDatos.FirstValue = FirstValue_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondValue.equals(SecondValue_Handle.getText())){           
+                ColeccionDatos.SecondValue = SecondValue_Handle.getText();
+                }
+                ColeccionDatos.OperationType = Choice_Handle.getValue().toString();
+
+            }
             }else {
                 ValX = true;NameX = true;
                  if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
@@ -443,21 +624,43 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
             
         case Diferencia:
-            if(!FirstValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo acceptan numeros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
+            if (!VariableConecValue) {
+                if(!FirstValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstValue_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo acceptan numeros");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }else {
+                ValX = true;NameX = true;
+                 if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
+                ColeccionDatos.FirstValue = FirstValue_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondValue.equals(SecondValue_Handle.getText())){           
+                ColeccionDatos.SecondValue = SecondValue_Handle.getText();
+                }
+                ColeccionDatos.OperationType = Choice_Handle.getValue().toString();
             }
-            else if(!SecondValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondValue_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan numeros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                NameX = false;
+            }
+            else if (!SecondVariableConecValue) {
+                if(!SecondValue_Handle.getText().matches("[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondValue_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan numeros");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    NameX = false;
+                }else {
+                ValX = true;NameX = true;
+                 if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
+                ColeccionDatos.FirstValue = FirstValue_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondValue.equals(SecondValue_Handle.getText())){           
+                ColeccionDatos.SecondValue = SecondValue_Handle.getText();
+                }
+                ColeccionDatos.OperationType = Choice_Handle.getValue().toString();
+            }
             }else {
                 ValX = true;NameX = true;
                  if (!ColeccionDatos.FirstValue.equals(FirstValue_Handle.getText())){           
@@ -471,21 +674,58 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
             
         case Si:
-            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstCondition_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo acceptan numeros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
+            if (!VariableConecValue) {
+                if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstCondition_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo acceptan numeros");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
+                ColeccionDatos.FirstCondition = FirstCondition_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondCondition.equals(SecondCond_Handle.getText())){           
+                ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
+                }
+                ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) && ConditionalNodes != UCIC.Extraright_pane.getChildren() && !UCIC.Extraright_pane.getChildren().isEmpty()) {
+                    ConditionalNodes.clear();
+                    for(Node n: UCIC.Extraright_pane.getChildren())
+                    {
+                        ConditionalNodes.add(n);
+                    }
             }
-            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondCond_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan letras");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                NameX = false;
+            }
+            }
+            else if (!SecondVariableConecValue) {
+                if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondCond_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    NameX = false;
+                }
+                else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
+                ColeccionDatos.FirstCondition = FirstCondition_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondCondition.equals(SecondCond_Handle.getText())){           
+                ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
+                }
+                ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) && ConditionalNodes != UCIC.Extraright_pane.getChildren() && !UCIC.Extraright_pane.getChildren().isEmpty()) {
+                    ConditionalNodes.clear();
+                    for(Node n: UCIC.Extraright_pane.getChildren())
+                    {
+                        ConditionalNodes.add(n);
+                    }
+            }
+            }
             }else {
                 ValX = true;NameX = true;
                 if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
@@ -508,21 +748,55 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
             
         case Sino:
-            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstCondition_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo acceptan numeros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
+            if (!VariableConecValue) {
+                if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstCondition_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo acceptan numeros");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
+                ColeccionDatos.FirstCondition = FirstCondition_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondCondition.equals(SecondCond_Handle.getText())){           
+                ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
+                }
+                ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) || ConditionalNodes == null && ConditionalNodes != UCIC.Extraright_pane.getChildren()) {
+                for(Node n: UCIC.Extraright_pane.getChildren())
+                {
+                    ConditionalNodes.add(n);
+                }
             }
-            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondCond_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan letras");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                NameX = false;
+            }
+            }
+            else if (!SecondVariableConecValue) {
+                if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondCond_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    NameX = false;
+                }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
+                ColeccionDatos.FirstCondition = FirstCondition_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondCondition.equals(SecondCond_Handle.getText())){           
+                ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
+                }
+                ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) || ConditionalNodes == null && ConditionalNodes != UCIC.Extraright_pane.getChildren()) {
+                for(Node n: UCIC.Extraright_pane.getChildren())
+                {
+                    ConditionalNodes.add(n);
+                }
+            }
+            }
             }else {
                 ValX = true;NameX = true;
                 if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
@@ -542,21 +816,56 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
             
         case Cuando:
-            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstCondition_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo acceptan numeros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
+            if (!VariableConecValue) {
+                if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstCondition_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo acceptan numeros");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
+                ColeccionDatos.FirstCondition = FirstCondition_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondCondition.equals(SecondCond_Handle.getText())){           
+                ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
+                }
+                ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) || ConditionalNodes == null && ConditionalNodes != UCIC.Extraright_pane.getChildren()) {
+                for(Node n: UCIC.Extraright_pane.getChildren())
+                {
+                    ConditionalNodes.add(n);
+                }
             }
-            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondCond_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan letras");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                NameX = false;
+            }
+            }
+            else if (!SecondVariableConecValue) {
+                if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondCond_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    NameX = false;
+                }
+                else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
+                ColeccionDatos.FirstCondition = FirstCondition_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondCondition.equals(SecondCond_Handle.getText())){           
+                ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
+                }
+                ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) || ConditionalNodes == null && ConditionalNodes != UCIC.Extraright_pane.getChildren()) {
+                for(Node n: UCIC.Extraright_pane.getChildren())
+                {
+                    ConditionalNodes.add(n);
+                }
+            }
+            }
             }else {
                 ValX = true;NameX = true;
                 if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
@@ -576,21 +885,55 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
             
         case Mientras:
-            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstCondition_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo acceptan numeros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
+            if (!VariableConecValue) {
+                if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstCondition_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo acceptan numeros");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
+                ColeccionDatos.FirstCondition = FirstCondition_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondCondition.equals(SecondCond_Handle.getText())){           
+                ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
+                }
+                ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) || ConditionalNodes == null && ConditionalNodes != UCIC.Extraright_pane.getChildren()) {
+                for(Node n: UCIC.Extraright_pane.getChildren())
+                {
+                    ConditionalNodes.add(n);
+                }
             }
-            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondCond_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan letras");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                NameX = false;
+            }
+            }
+            else if (!SecondVariableConecValue) {
+                if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondCond_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    NameX = false;
+                }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
+                ColeccionDatos.FirstCondition = FirstCondition_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondCondition.equals(SecondCond_Handle.getText())){           
+                ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
+                }
+                ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) || ConditionalNodes == null && ConditionalNodes != UCIC.Extraright_pane.getChildren()) {
+                for(Node n: UCIC.Extraright_pane.getChildren())
+                {
+                    ConditionalNodes.add(n);
+                }
+            }
+            }
             }else {
                 ValX = true;NameX = true;
                 if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
@@ -610,21 +953,57 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
         
         case Mientrasque:
-            if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstCondition_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo acceptan numeros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
+            if (!VariableConecValue) {
+                if(!FirstCondition_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| FirstCondition_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo acceptan numeros");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    ValX = false;
+                }
+                else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
+                ColeccionDatos.FirstCondition = FirstCondition_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondCondition.equals(SecondCond_Handle.getText())){           
+                ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
+                }
+                ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) || ConditionalNodes == null && ConditionalNodes != UCIC.Extraright_pane.getChildren()) {
+                for(Node n: UCIC.Extraright_pane.getChildren())
+                {
+                    ConditionalNodes.add(n);
+                }
             }
-            else if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondCond_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo se aceptan letras");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                NameX = false;
+            }
+            }
+            else if (!SecondVariableConecValue) {
+                if(!SecondCond_Handle.getText().matches("[a-zA-Z]*[-]?[0-9]*\\.*[0-9]*\\W*[0-9]*\\.*[0-9]*")|| SecondCond_Handle.getText().isEmpty())
+                {
+                    Tooltip nota = new Tooltip();
+                    nota.setText("Solo se aceptan letras");
+                    root_pane.setStyle("-fx-background-color:red;");
+                    ColeccionDatos.noValido = false;
+                    NameX = false;
+                }
+                else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
+                ColeccionDatos.FirstCondition = FirstCondition_Handle.getText();
+                }
+                if (!ColeccionDatos.SecondCondition.equals(SecondCond_Handle.getText())){           
+                ColeccionDatos.SecondCondition = SecondCond_Handle.getText();
+                }
+                ColeccionDatos.ConditionType = ChoiceCon_Handle.getValue().toString();
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) || ConditionalNodes == null && ConditionalNodes != UCIC.Extraright_pane.getChildren()) {
+                for(Node n: UCIC.Extraright_pane.getChildren())
+                {
+                    ConditionalNodes.add(n);
+                }
+            }
+            }
             }else {
                 ValX = true;NameX = true;
                 if (!ColeccionDatos.FirstCondition.equals(FirstCondition_Handle.getText())){           
@@ -644,13 +1023,29 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
             
         case Porcada:
-            if(!BucCount_Handle.getText().matches("[0-9]*[^.]\\W*[0-9]*[^.]")|| BucCount_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo acceptan numeros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
+            if (!VariableConecValue) {
+                if(!BucCount_Handle.getText().matches("[0-9]*[^.][+*/-]*[0-9]*")|| BucCount_Handle.getText().isEmpty())
+                {
+                    if (BucCount_Handle.getText().matches("[^a-z^A-Z]")) {
+                        Tooltip nota = new Tooltip();
+                        nota.setText("Solo acceptan numeros");
+                        root_pane.setStyle("-fx-background-color:red;");
+                        ColeccionDatos.noValido = false;
+                        ValX = false;
+                    }
+                }else {
+                ValX = true;NameX = true;
+                
+                if (!ColeccionDatos.FirstValue.equals(BucCount_Handle.getText())){           
+                ColeccionDatos.FirstValue = BucCount_Handle.getText();
+                }
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) || ConditionalNodes == null && ConditionalNodes != UCIC.Extraright_pane.getChildren()) {
+                for(Node n: UCIC.Extraright_pane.getChildren())
+                {
+                    ConditionalNodes.add(n);
+                }
+            }
+            }
             }else {
                 ValX = true;NameX = true;
                 
@@ -667,13 +1062,28 @@ timer.scheduleAtFixedRate(new TimerTask() {
         break;
             
         case Cada:
-            if(!BucCount_Handle.getText().matches("[0-9]*[^.]\\W*[0-9]*[^.]")|| BucCount_Handle.getText().isEmpty())
-            {
-                Tooltip nota = new Tooltip();
-                nota.setText("Solo acceptan numeros");
-                root_pane.setStyle("-fx-background-color:red;");
-                ColeccionDatos.noValido = false;
-                ValX = false;
+            if (!VariableConecValue) {
+                if(!BucCount_Handle.getText().matches("[0-9]*[^.][+*/-]*[0-9]*")|| BucCount_Handle.getText().isEmpty())
+                {
+                    if (BucCount_Handle.getText().matches("[^a-z^A-Z]")) {
+                        Tooltip nota = new Tooltip();
+                        nota.setText("Solo acceptan numeros");
+                        root_pane.setStyle("-fx-background-color:red;");
+                        ColeccionDatos.noValido = false;
+                        ValX = false;
+                    }
+                }else {
+                ValX = true;NameX = true;
+                if (!ColeccionDatos.FirstValue.equals(BucCount_Handle.getText())){           
+                ColeccionDatos.FirstValue = BucCount_Handle.getText();
+                }
+                if (UCIC.ActualId == null ? self.getId() == null : UCIC.ActualId.equals(self.getId()) || ConditionalNodes == null && ConditionalNodes != UCIC.Extraright_pane.getChildren()) {
+                for(Node n: UCIC.Extraright_pane.getChildren())
+                {
+                    ConditionalNodes.add(n);
+                }
+            }
+            }
             }else {
                 ValX = true;NameX = true;
                 if (!ColeccionDatos.FirstValue.equals(BucCount_Handle.getText())){           
@@ -696,10 +1106,6 @@ timer.scheduleAtFixedRate(new TimerTask() {
             ColeccionDatos.positionX = getLayoutX();
             ColeccionDatos.positionY = getLayoutY();
         }
-    }
-}, 3000, 3000);
-
-    
 }
 
 public void registerLink(String linkId) {
@@ -768,27 +1174,27 @@ public void setDataCollector(DataCollector data)
         break;
 
         case "Mas":
-            data.ValorItem = data.FirstValue+data.OperationType+data.SecondValue;
+            data.NombreItem = data.FirstValue+data.OperationType+data.SecondValue;
             ChangeValues(data);
         break;
 
         case "Menos":
-            data.ValorItem = data.FirstValue+data.OperationType+data.SecondValue;
+            data.NombreItem = data.FirstValue+data.OperationType+data.SecondValue;
             ChangeValues(data);
         break;
 
         case "Entre":
-            data.ValorItem = data.FirstValue+data.OperationType+data.SecondValue;
+            data.NombreItem = data.FirstValue+data.OperationType+data.SecondValue;
             ChangeValues(data);
         break;
 
         case "Por":
-            data.ValorItem = data.FirstValue+data.OperationType+data.SecondValue;
+            data.NombreItem = data.FirstValue+data.OperationType+data.SecondValue;
             ChangeValues(data);
         break;
 
         case "Diferencia":
-            data.ValorItem = data.FirstValue+data.OperationType+data.SecondValue;
+            data.NombreItem = data.FirstValue+data.OperationType+data.SecondValue;
             ChangeValues(data);
         break;
 
@@ -813,16 +1219,16 @@ public void setDataCollector(DataCollector data)
         break;
 
         case "Porcada":
-            data.ValorItem = data.FirstValue;
+            data.NombreItem = data.FirstValue;
             ChangeValues(data);
         break;
 
         case "Cada":
-            data.ValorItem = data.FirstValue;
+            data.NombreItem = data.FirstValue;
             ChangeValues(data);
         break;
     }
-    if (!data.NombreItem.isEmpty()&&data.positionX !=0.00 && data.positionY != 0.00) {
+    if (data.positionX !=0.00 && data.positionY != 0.00 && data.Saved) {
         setLayoutX(data.positionX);
         setLayoutY(data.positionY);
         ColeccionDatos.NombreItem = data.NombreItem;
@@ -839,118 +1245,169 @@ private void ChangeValues(DataCollector data){
     switch(mType)
     {
         case Entero:
-            varValue_Handle.setText(data.ValorItem);
+            if ("Leer".equals(data.TipoItem)) 
+               varValue_Handle.setText("(int)"+data.NombreItem); 
+            else
+                varValue_Handle.setText(data.NombreItem);
             ColeccionDatos.Id2 = data.Id;
+            VariableConecValue = true;
         break;
 
         case Flotante:
-            varValue_Handle.setText(data.ValorItem);
+            varValue_Handle.setText(data.NombreItem);
             ColeccionDatos.Id2 = data.Id;
+            VariableConecValue = true;
+
         break;
 
         case Doble:
-            varValue_Handle.setText(data.ValorItem);
+            varValue_Handle.setText(data.NombreItem);
             ColeccionDatos.Id2 = data.Id;
+            VariableConecValue = true;
         break;
 
         case Texto:
-            varValue_Handle.setText(data.ValorItem);
+            varValue_Handle.setText(data.NombreItem);
             ColeccionDatos.Id2 = data.Id;
+            VariableConecValue = true;
         break;
 
         case Mostrar:
-            varValue_Handle.setText(data.ValorItem);
+            varValue_Handle.setText(data.NombreItem);
             ColeccionDatos.Id2 = data.Id;
+            VariableConecValue = true;
         break;
 
         case Mas:
-            if (!secondaryValuelink) 
-                FirstValue_Handle.setText(data.ValorItem);
-            else
-                SecondValue_Handle.setText(data.ValorItem);
+            if (!secondaryValuelink) {
+                FirstValue_Handle.setText(data.NombreItem);
+                VariableConecValue = true;
+            }
+            else{
+                SecondValue_Handle.setText(data.NombreItem);
+                SecondVariableConecValue = true;
+            }
             ColeccionDatos.Id2 = data.Id;
         break;
 
         case Menos:
-            if (!secondaryValuelink) 
-                FirstValue_Handle.setText(data.ValorItem);
-            else
-                SecondValue_Handle.setText(data.ValorItem);
+            if (!secondaryValuelink) {
+                FirstValue_Handle.setText(data.NombreItem);
+                VariableConecValue = true;
+            }
+            else{
+                SecondValue_Handle.setText(data.NombreItem);
+                SecondVariableConecValue = true;
+            }
             ColeccionDatos.Id2 = data.Id;
         break;
 
         case Entre:
-            if (!secondaryValuelink) 
-                FirstValue_Handle.setText(data.ValorItem);
-            else
-                SecondValue_Handle.setText(data.ValorItem);
+            if (!secondaryValuelink) {
+                FirstValue_Handle.setText(data.NombreItem);
+                VariableConecValue = true;
+            }
+            else{
+                SecondValue_Handle.setText(data.NombreItem);
+                SecondVariableConecValue = true;
+            }
             ColeccionDatos.Id2 = data.Id;
         break;
 
         case Por:
-            if (!secondaryValuelink) 
-                FirstValue_Handle.setText(data.ValorItem);
-            else
-                SecondValue_Handle.setText(data.ValorItem);
+            if (!secondaryValuelink) {
+                FirstValue_Handle.setText(data.NombreItem);
+                VariableConecValue = true;
+            }
+            else{
+                SecondValue_Handle.setText(data.NombreItem);
+                SecondVariableConecValue = true;
+            }
             ColeccionDatos.Id2 = data.Id;
         break;
 
         case Diferencia:
-            if (!secondaryValuelink) 
-                FirstValue_Handle.setText(data.ValorItem);
-            else
-                SecondValue_Handle.setText(data.ValorItem);
+            if (!secondaryValuelink) {
+                FirstValue_Handle.setText(data.NombreItem);
+                VariableConecValue = true;
+            }
+            else{
+                SecondValue_Handle.setText(data.NombreItem);
+                SecondVariableConecValue = true;
+            }
             ColeccionDatos.Id2 = data.Id;
         break;
 
         case Si:
-            if (!secondaryValuelink) 
-                FirstCondition_Handle.setText(data.ValorItem);
-            else
-                SecondCond_Handle.setText(data.ValorItem);
+            if (!secondaryValuelink) {
+                FirstCondition_Handle.setText(data.NombreItem);
+                VariableConecValue = true;
+            }
+            else{
+                SecondCond_Handle.setText(data.NombreItem);
+                SecondVariableConecValue = true;
+            }
             ColeccionDatos.Id2 = data.Id;
         break;
 
         case Sino:
-            if (!secondaryValuelink) 
-                FirstCondition_Handle.setText(data.ValorItem);
-            else
-                SecondCond_Handle.setText(data.ValorItem);
+            if (!secondaryValuelink) {
+                FirstCondition_Handle.setText(data.NombreItem);
+                VariableConecValue = true;
+            }
+            else{
+                SecondCond_Handle.setText(data.NombreItem);
+                SecondVariableConecValue = true;
+            }
             ColeccionDatos.Id2 = data.Id;
         break;
 
         case Cuando:
-            if (!secondaryValuelink) 
-                FirstCondition_Handle.setText(data.ValorItem);
-            else
-                SecondCond_Handle.setText(data.ValorItem);
+            if (!secondaryValuelink) {
+                FirstCondition_Handle.setText(data.NombreItem);
+                VariableConecValue = true;
+            }
+            else{
+                SecondCond_Handle.setText(data.NombreItem);
+                SecondVariableConecValue = true;
+            }
             ColeccionDatos.Id2 = data.Id;
         break;
 
         case Mientras:
-            if (!secondaryValuelink) 
-                FirstCondition_Handle.setText(data.ValorItem);
-            else
-                SecondCond_Handle.setText(data.ValorItem);
+            if (!secondaryValuelink) {
+                FirstCondition_Handle.setText(data.NombreItem);
+                VariableConecValue = true;
+            }
+            else{
+                SecondCond_Handle.setText(data.NombreItem);
+                SecondVariableConecValue = true;
+            }
             ColeccionDatos.Id2 = data.Id;
         break;
 
         case Mientrasque:
-            if (!secondaryValuelink) 
-                FirstCondition_Handle.setText(data.ValorItem);
-            else
-                SecondCond_Handle.setText(data.ValorItem);
+            if (!secondaryValuelink) {
+                FirstCondition_Handle.setText(data.NombreItem);
+                VariableConecValue = true;
+            }
+            else{
+                SecondCond_Handle.setText(data.NombreItem);
+                SecondVariableConecValue = true;
+            }
             ColeccionDatos.Id2 = data.Id;
         break;
 
         case Porcada:
-            BucCount_Handle.setText(data.ValorItem);
+            BucCount_Handle.setText(data.NombreItem);
             ColeccionDatos.Id2 = data.Id;
+            VariableConecValue = true;
         break;
 
         case Cada:
-            BucCount_Handle.setText(data.ValorItem);
+            BucCount_Handle.setText(data.NombreItem);
             ColeccionDatos.Id2 = data.Id;
+            VariableConecValue = true;
         break;
     }
 
@@ -969,6 +1426,7 @@ public void setType(TiposdeIconos type,ResourceBundle resourceBundle){
             BaseBuc_Handle.getChildren().clear();
             BaseOp_Handle.getChildren().clear();
             BaseVar_Handle.setPadding(new Insets(10, 0, 10, 0));
+            ((VBox) VarChoice_Handle.getParent()).getChildren().remove(VarChoice_Handle);
         ColeccionDatos.TipoItem = "Entero";
         ((VBox) addBtn_Handle.getParent()).getChildren().remove(addBtn_Handle);
         title_bar.setText(resourceBundle.getString("Entero"));
@@ -980,7 +1438,7 @@ public void setType(TiposdeIconos type,ResourceBundle resourceBundle){
             BaseBuc_Handle.getChildren().clear();
             BaseOp_Handle.getChildren().clear();
                         BaseVar_Handle.setPadding(new Insets(10, 0, 10, 0));
-
+                        ((VBox) VarChoice_Handle.getParent()).getChildren().remove(VarChoice_Handle);
         ColeccionDatos.TipoItem = "Flotante";
         ((VBox) addBtn_Handle.getParent()).getChildren().remove(addBtn_Handle);
         title_bar.setText(resourceBundle.getString("Flotante"));
@@ -992,7 +1450,7 @@ public void setType(TiposdeIconos type,ResourceBundle resourceBundle){
             BaseBuc_Handle.getChildren().clear();
             BaseOp_Handle.getChildren().clear();
                         BaseVar_Handle.setPadding(new Insets(10, 0, 10, 0));
-
+                        ((VBox) VarChoice_Handle.getParent()).getChildren().remove(VarChoice_Handle);
         ColeccionDatos.TipoItem = "Doble";        
         ((VBox) addBtn_Handle.getParent()).getChildren().remove(addBtn_Handle);
         title_bar.setText(resourceBundle.getString("Doble"));
@@ -1004,7 +1462,7 @@ public void setType(TiposdeIconos type,ResourceBundle resourceBundle){
             BaseBuc_Handle.getChildren().clear();
             BaseOp_Handle.getChildren().clear();
                         BaseVar_Handle.setPadding(new Insets(10, 0, 10, 0));
-
+                        ((VBox) VarChoice_Handle.getParent()).getChildren().remove(VarChoice_Handle);
         ColeccionDatos.TipoItem = "Texto";
         addBtn_Handle.setVisible(true);
         title_bar.setText(resourceBundle.getString("Texto"));
@@ -1018,10 +1476,19 @@ public void setType(TiposdeIconos type,ResourceBundle resourceBundle){
                         BaseVar_Handle.setPadding(new Insets(10, 0, 10, 0));
 
         ColeccionDatos.TipoItem = "Leer";
+        ((VBox) Inputs_Handle.getParent()).getChildren().remove(Inputs_Handle);
         ((GridPane) endLink_Handle.getParent()).getChildren().remove(endLink_Handle);
         ((GridPane) varValue_Handle.getParent()).getChildren().remove(varValue_Handle);
+        ((VBox) addBtn_Handle.getParent()).getChildren().remove(addBtn_Handle);
         title_bar.setText(resourceBundle.getString("Leer"));
         TopGrid_Handle.getStyleClass().add("icon-Func");
+        VarChoice_Handle.setVisible(true);
+        VarChoice_Handle.setValue(resourceBundle.getString("Entero"));
+        VarChoice_Handle.getItems().add(resourceBundle.getString("Entero"));
+        VarChoice_Handle.getItems().add(resourceBundle.getString("Flotante"));
+    VarChoice_Handle.getItems().add(resourceBundle.getString("Doble"));
+    VarChoice_Handle.getItems().add(resourceBundle.getString("Texto"));
+
         break;
         
         case Mostrar:
@@ -1029,8 +1496,9 @@ public void setType(TiposdeIconos type,ResourceBundle resourceBundle){
             BaseBuc_Handle.getChildren().clear();
             BaseOp_Handle.getChildren().clear();
                         BaseVar_Handle.setPadding(new Insets(10, 0, 10, 0));
-
+         ((GridPane) endLink_Handle.getParent()).getChildren().remove(startLink_Handle);               
         ColeccionDatos.TipoItem = "Mostrar";
+        ((VBox) VarChoice_Handle.getParent()).getChildren().remove(VarChoice_Handle);
         ((VBox) varName_Handle.getParent()).getChildren().remove(varName_Handle);
         title_bar.setText(resourceBundle.getString("Mostrar"));
         TopGrid_Handle.getStyleClass().add("icon-Func");
@@ -1222,6 +1690,7 @@ public void setType(TiposdeIconos type,ResourceBundle resourceBundle){
             BaseOp_Handle.getChildren().clear();
             BaseBuc_Handle.setPadding(new Insets(10, 0, 10, 0));
         ColeccionDatos.TipoItem = "Porcada";
+        TopGrid_Handle.getChildren().remove(startLink_Handle);
         title_bar.setText(resourceBundle.getString("Porcada"));
         TopGrid_Handle.getStyleClass().add("icon-Buc");
         break;
@@ -1231,6 +1700,7 @@ public void setType(TiposdeIconos type,ResourceBundle resourceBundle){
             BaseCon_Handle.getChildren().clear();
             BaseOp_Handle.getChildren().clear();
             BaseBuc_Handle.setPadding(new Insets(10, 0, 10, 0));
+            TopGrid_Handle.getChildren().remove(startLink_Handle);
         ColeccionDatos.TipoItem = "Cada";
         title_bar.setText(resourceBundle.getString("Cada"));
         TopGrid_Handle.getStyleClass().add("icon-Buc");
@@ -1246,10 +1716,12 @@ public void buildNodeEventHandlers()
         @Override
         public void handle(MouseEvent event)
         {
-            Popup.show(self);
-            Popup.setAutoHide(false);
-            Popup.setCloseButtonEnabled(true);
-            Popup.setTitle(mType.name());
+            UCIC.popup.show(self);
+            UCIC.popup.setAutoHide(false);
+            UCIC.popup.setCloseButtonEnabled(true);
+            UCIC.popup.setHeaderAlwaysVisible(true);
+            UCIC.popup.setHideOnEscape(true);
+            UCIC.popup.setTitle(mType.name());
             
             if (UCIC.ActualId == null ? self.getId() == null : !UCIC.ActualId.equals(self.getId())) {
                 UCIC.Extraright_pane.getChildren().clear();
@@ -1310,9 +1782,13 @@ public void buildNodeDragHandlers() {
      parent.getChildren().remove(self);
      
     
-    ChildIds.stream().forEach((id) -> {
-        Root.SetNodeEnable(id);
-    });
+//    ChildIds.stream().forEach(new Consumer<String>() {
+//         @Override
+//         public void accept
+//        (String id) {
+//             Root.SetNodeEnable(id);
+//         }
+//     });
       for (ListIterator  iterId = mLinkIds.listIterator(); 
             iterId.hasNext();) {
                         

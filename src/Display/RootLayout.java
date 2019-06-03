@@ -12,12 +12,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
@@ -32,6 +36,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
@@ -64,6 +70,7 @@ public class RootLayout extends AnchorPane {
     public EventHandler mExtraIconDragOverRoot=null;
         
     public Iconos mDragOverIcon = null;
+    public EventHandler mEnterKeyboardEvent=null;
     public EventHandler mIconDragOverRoot=null;
     public EventHandler mIconDragDropped=null;
     public EventHandler mIconDragOverRightPane=null;
@@ -75,6 +82,8 @@ public class RootLayout extends AnchorPane {
     private EventHandler mSaveProyectActionEvent=null;
     private EventHandler mExecuteMouseEvent=null;
     private EventHandler mChangeLanguageActionEvent=null;
+    
+    Timer timer = new Timer();
     
     private  ArrayList<String> NodesIds = new ArrayList<String>();
     
@@ -89,7 +98,8 @@ public class RootLayout extends AnchorPane {
     public ClipboardContent SecondClip = new ClipboardContent();
     
     public ConditionItemsControl CIC;
-    public PopOver popup;
+    
+    private InputStreamConsumer Exe;
     
     public RootLayout(){
         FXMLLoader fxmlLoader = new FXMLLoader(
@@ -121,17 +131,18 @@ public class RootLayout extends AnchorPane {
     getChildren().add(mDragOverIcon);
     
     buildMouseEventHandle();
+    buildKeyboardEventHandle();
     GenerateCode_Handle.setOnAction(mMenuItemActionEvent);
     OpenProyect_Handle.setOnAction(mOpenProyectActionEvent);
     Generator_Handle.setOnMouseClicked(mGeneradorMouseEvent);
     NewProyect_Handle.setOnMouseClicked(mNewProyectMouseEvent);
     right_pane.setOnMouseClicked(mRightPaneClickEvent);
+    
 
     SaveProyect_Handle.setOnAction(mSaveProyectActionEvent);
     Execute_Handle.setOnMouseClicked(mExecuteMouseEvent);
     ChangeLanguage_Handle.setOnAction(mChangeLanguageActionEvent);
     CIC = new ConditionItemsControl();
-    popup = new PopOver(CIC.ExtraDropzone_handle);
     
     
     
@@ -157,6 +168,22 @@ public class RootLayout extends AnchorPane {
         
         
     }
+     
+     timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                right_pane.getChildren().forEach((n) -> {
+                    for (int j = 0; j < NodesIds.size(); j++) {
+                        if(NodesIds.get(j).equals(n.getId()))
+                        {
+                            IconDrag Ic = (IconDrag) n;
+                            Ic.Check();
+                        }
+//                        else NodesIds.remove(NodesIds.get(j));
+                    }
+                }); 
+            }
+       }, 3000, 3000);
     
     }
 
@@ -172,9 +199,9 @@ public class RootLayout extends AnchorPane {
             base_pane.setOnDragOver(mIconDragOverRoot);
             right_pane.setOnDragOver(mIconDragOverRightPane);
             right_pane.setOnDragDropped(mIconDragDropped);
-            popup.getRoot().setOnDragOver(mExtraIconDragOverRightPane);
+            CIC.popup.getRoot().setOnDragOver(mExtraIconDragOverRightPane);
             CIC.Extraright_pane.setOnDragOver(mExtraIconDragOverRoot);
-            popup.getRoot().setOnDragDropped(mExtraIconDragDropped);
+            CIC.popup.getRoot().setOnDragDropped(mExtraIconDragDropped);
         
             // get a reference to the clicked DragIcon object
             Iconos icn = (Iconos) event.getSource();
@@ -253,9 +280,9 @@ public class RootLayout extends AnchorPane {
 			
 		@Override
 		public void handle (DragEvent event) {
-			popup.getRoot().removeEventHandler(DragEvent.DRAG_OVER,mExtraIconDragOverRoot);
+			CIC.popup.getRoot().removeEventHandler(DragEvent.DRAG_OVER,mExtraIconDragOverRoot);
 			CIC.Extraright_pane.removeEventHandler(DragEvent.DRAG_OVER, mExtraIconDragOverRightPane);
-			popup.getRoot().removeEventHandler(DragEvent.DRAG_DROPPED, mExtraIconDragDropped);	
+			CIC.popup.getRoot().removeEventHandler(DragEvent.DRAG_DROPPED, mExtraIconDragDropped);	
                        right_pane.removeEventHandler(DragEvent.DRAG_OVER, mIconDragOverRightPane);
 			right_pane.removeEventHandler(DragEvent.DRAG_DROPPED, mIconDragDropped);
                         base_pane.removeEventHandler(DragEvent.DRAG_OVER, mIconDragOverRoot);
@@ -271,7 +298,7 @@ public class RootLayout extends AnchorPane {
                     System.out.println(container.getData().toString());
             if (container.getValue("scene_coords") != null) {
 
-                        IconDrag node = new IconDrag(resourceBundle,popup,CIC);
+                        IconDrag node = new IconDrag(resourceBundle,CIC);
                         node.setType(TiposdeIconos.valueOf(container.getValue("type")),resourceBundle);
                         right_pane.getChildren().add(node);
                         NodesIds.add(node.getId());
@@ -315,10 +342,11 @@ public class RootLayout extends AnchorPane {
                         
         if (source != null && target != null){
             DataCollector data = source.getDataCollector();
-            data.NombreItem = "";
+            data.positionX = 0;
+            data.positionY = 0;
             source.AddChild(targetId);
             target.setDataCollector(data);
-            target.ValueDisable(true);
+            
             link.bindEnds(source, target);
         }
     }
@@ -329,16 +357,13 @@ public class RootLayout extends AnchorPane {
     Contenedor Secondcontainer =(Contenedor) SecondClip.get(Contenedor.AddNode);
 
     if (Secondcontainer.getValue("scene_coords") != null) {
-        ConditionItemsControl NCIC = new ConditionItemsControl();
-        PopOver Npopup = new PopOver(NCIC.ExtraDropzone_handle);
-        
-        Npopup.getRoot().setOnDragOver(mExtraIconDragOverRightPane);
+        ConditionItemsControl NCIC = new ConditionItemsControl();        
+        NCIC.popup.getRoot().setOnDragOver(mExtraIconDragOverRightPane);
         NCIC.Extraright_pane.setOnDragOver(mExtraIconDragOverRoot);
-        Npopup.getRoot().setOnDragDropped(mExtraIconDragDropped);
-        IconDrag node = new IconDrag(resourceBundle,Npopup,NCIC);
+        NCIC.popup.getRoot().setOnDragDropped(mExtraIconDragDropped);
+        IconDrag node = new IconDrag(resourceBundle,NCIC);
         node.setType(TiposdeIconos.valueOf(Secondcontainer.getValue("type")),resourceBundle);
         CIC.Extraright_pane.getChildren().add(node);
-        NodesIds.add(node.getId());
 
         Point2D cursorPoint = Secondcontainer.getValue("scene_coords");
 
@@ -353,7 +378,7 @@ public class RootLayout extends AnchorPane {
                 
     });
     
-    popup.getScene().setOnDragDone(new EventHandler <DragEvent> (){
+    CIC.popup.getScene().setOnDragDone(new EventHandler <DragEvent> (){
 
         @Override
         public void handle(DragEvent event) {
@@ -390,11 +415,11 @@ public class RootLayout extends AnchorPane {
 
             if (source != null && target != null){
                 DataCollector data = source.getDataCollector();
-                data.NombreItem = "";
-                source.AddChild(targetId);
-                target.setDataCollector(data);
-                target.ValueDisable(true);
-                link.bindEnds(source, target);
+            data.positionX = 0;
+            data.positionY = 0;
+            source.AddChild(targetId);
+            target.setDataCollector(data);
+            link.bindEnds(source, target);
             }
         }}
             event.consume();
@@ -483,7 +508,6 @@ public class RootLayout extends AnchorPane {
             {
                 ColeccionDatos.clear();
                 Copilador copiler = new Copilador();
-                ArrayList<Double> positions = new ArrayList<Double>();
                 boolean Correcto = true;
                 for(Node n: right_pane.getChildren())
                 {
@@ -512,18 +536,12 @@ public class RootLayout extends AnchorPane {
                     } 
                     
                 }
-                Collections.sort(positions);
+                
+
+                ColeccionDatos.sort(Comparator.comparing((dataCollector) -> dataCollector.GetPosition()));
                 if(!ColeccionDatos.isEmpty() && Correcto == true) try {
-                    for (int j = 0; j<ColeccionDatos.size(); j++) {
-                        for (int E = 0; E<positions.size(); E++) {
-                            if (ColeccionDatos.get(j).positionX == positions.get(E)) {
-                                DataCollector Dato = ColeccionDatos.get(E);
-                                ColeccionDatos.set(E, ColeccionDatos.get(j));
-                                ColeccionDatos.set(j, Dato);
-                            }
-                        }
-                    }
-                    copiler.RecuperarDatos(ColeccionDatos);
+                    
+                    copiler.RecuperarDatos(ColeccionDatos, ProyectPath);
                     WriteTextOutput("Copilacion correcta");
                 } catch (Exception ex) {
                     Logger.getLogger(RootLayout.class.getName()).log(Level.SEVERE, null, ex);
@@ -554,7 +572,7 @@ public class RootLayout extends AnchorPane {
                     
                 }
                 if(!ColeccionDatos.isEmpty() && Correcto == true) try {
-                    copiler.RecuperarDatos(ColeccionDatos);
+                    copiler.RecuperarDatos(ColeccionDatos, ProyectPath);
                     WriteTextOutput("Copilacion correcta");
                 } catch (Exception ex) {
                     Logger.getLogger(RootLayout.class.getName()).log(Level.SEVERE, null, ex);
@@ -579,7 +597,7 @@ public class RootLayout extends AnchorPane {
                 Dropzone_handle.setDisable(false);
                 
                 for (DataCollector ColeccionDato : collector.ColeccionDatos) {
-                    IconDrag node = new IconDrag(resourceBundle,popup,CIC);
+                    IconDrag node = new IconDrag(resourceBundle,CIC);
 
                     node.setType(TiposdeIconos.valueOf(ColeccionDato.TipoItem),resourceBundle);
                     right_pane.getChildren().add(node);
@@ -641,6 +659,7 @@ public class RootLayout extends AnchorPane {
                         }   
                     }   
                 }
+                ColeccionDatos.sort(Comparator.comparing((dataCollector) -> dataCollector.GetPosition()));
                 if(!ColeccionDatos.isEmpty() && Correcto == true) try {
                     String FilePath = copiler.EjecutarDatos(ColeccionDatos,ProyectPath);
                     if (!FilePath.isEmpty()) {
@@ -671,46 +690,120 @@ public class RootLayout extends AnchorPane {
         };
     }
     
-    private static ArrayList<String> printLines(String name, InputStream ins) throws Exception {
-    String line = null;
-    ArrayList<String> Lines = new ArrayList<String>();
+    private void buildKeyboardEventHandle(){
+    mEnterKeyboardEvent = new EventHandler <KeyEvent>()
+        {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode() == KeyCode.ENTER)  {
+                    String[] command = Output_Handle.getText().split("\\n");
+                    Exe.Input(command[command.length-1]);
+
+                    event.consume();
+                }
+            }
+        };
+    }
+    
+    private void printLines(String name, InputStream ins) throws Exception {
+    String line;
+    
     BufferedReader in = new BufferedReader(
         new InputStreamReader(ins));
     while ((line = in.readLine()) != null) {
+        if (line == null) { break; }
         System.out.println(name + " " + line);
-        Lines.add(line);
+        WriteTextOutput(line);
     }
-    return Lines;
+ 
   }
+    public int run(String clazz, String path) throws IOException, InterruptedException {        
+        ProcessBuilder pb = new ProcessBuilder("java","-cp",path,clazz);
+        
+        Exe = new InputStreamConsumer(pb,false);
+        Exe.start();
 
-  private void runProcess(String command) throws Exception {
-    Process pro = Runtime.getRuntime().exec(command);
-    ArrayList<String> Valor = printLines(command + " stdout:", pro.getInputStream());
-    ArrayList<String> Error = printLines(command + " stderr:", pro.getErrorStream());
-    for(String valor:Valor){
-      if (!valor.isEmpty()) {
-          WriteTextOutput(valor);
-      }
+        int result = 1;
+
+//        consumer.join();
+
+        
+
+        return result;
     }
-    for(String error:Error){
-      if (!error.isEmpty()) {
-          WriteTextOutput(error);
-      }
+
+    public int compile(String file,String path) throws IOException, InterruptedException {        
+        ProcessBuilder pb = new ProcessBuilder("javac","-d",path,file);
+        InputStreamConsumer consumer = new InputStreamConsumer(pb,true);
+        consumer.start();
+        int result = 1;
+        consumer.join();
+
+        System.out.println(consumer.getOutput());
+        return result;        
     }
-    pro.waitFor();
-    System.out.println(command + " exitValue() " + pro.exitValue());
-  }
+    
+    public class InputStreamConsumer extends Thread {
+
+        private final InputStream is;
+        private IOException exp;
+        private StringBuilder output;
+        private final ProcessBuilder PB;
+        private final boolean IsCopiler;
+
+        public InputStreamConsumer(ProcessBuilder pb,boolean Copiler) throws IOException {
+            IsCopiler = Copiler;
+            PB = pb;
+            PB.redirectError();
+            Process p = PB.start();
+            
+            this.is = p.getInputStream();
+        }
+
+        @Override
+        public  void run() {
+            
+            int in = -1;
+            output = new StringBuilder(64);
+            try {
+                while ((in = is.read()) != -1) {
+                    output.append((char) in);
+                }
+                if ((in = is.read()) == -1 && !IsCopiler) {
+                    WriteTextOutput(output.toString());
+                    Output_Handle.setOnKeyPressed(mEnterKeyboardEvent);
+                }
+            } catch (IOException ex) {
+                exp = ex;
+            }
+        }
+
+        public void Input(String command) {
+            PB.command(command);
+            Output_Handle.removeEventHandler(KeyEvent.KEY_PRESSED, mEnterKeyboardEvent);
+            
+        }
+        
+        public StringBuilder getOutput() {
+            return output;
+        }
+
+        public IOException getException() {
+            return exp;
+        }
+    }
+    
+  
   
   public void Execute(String FilePath, String ProyectPath)
   {
       String FileName = FilePath.substring(FilePath.lastIndexOf("\\")+1);
     try {
-      runProcess("javac -d "+ProyectPath+"\\Build "+FilePath);
-   
-      runProcess("java -cp " +ProyectPath+"\\Build "+FileName.replaceAll(".java", ""));
-    } catch (Exception e) {
+      int result = compile(FilePath,ProyectPath+"\\Build");
+      System.out.println("javac returned " + result);
+      run(FileName.replaceAll(".java", ""),ProyectPath+"\\Build");
+    } catch (IOException | InterruptedException e) {
       WriteTextOutput(e.getMessage());
-      e.printStackTrace();
     }
   }
 

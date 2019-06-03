@@ -35,7 +35,9 @@ public class ConditionItemsControl extends AnchorPane {
         @FXML public ScrollPane ExtraDropzone_handle;
          
         public EventHandler mExtraIconDragDropped=null;
-
+        
+        public PopOver popup;
+        
         public String ActualId;
         
     public ConditionItemsControl() {
@@ -44,8 +46,7 @@ public class ConditionItemsControl extends AnchorPane {
         
     fxmlLoader.setController(this); 
     try {
-    fxmlLoader.load();
-
+        popup = new PopOver(fxmlLoader.load());
     } catch (IOException exception) {
     throw new RuntimeException(exception);
     }

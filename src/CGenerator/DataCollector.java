@@ -2,6 +2,7 @@ package CGenerator;
 
 import Display.TiposdeIconos;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class DataCollector {
@@ -16,6 +17,7 @@ public class DataCollector {
     public String FirstValue = "";
     public String OperationType = "";
     public String SecondValue ="";
+    public boolean Saved = false;
 
     public ArrayList<String> Textos = new ArrayList <String> ();
     public ArrayList<DataCollector> Conditionales = new ArrayList <DataCollector>();
@@ -24,6 +26,10 @@ public class DataCollector {
     public double positionY = 0.00;
     public List<String> mLinkIds = new ArrayList <String> ();
     public List<String> ChildIds = new ArrayList <String> ();
+    
+    public double GetPosition(){
+        return positionX;
+    }
 }
 
 

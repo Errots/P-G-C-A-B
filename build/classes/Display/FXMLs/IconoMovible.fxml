@@ -77,6 +77,11 @@
                               <Insets top="5.0" />
                            </VBox.margin>
                         </GridPane>
+                        <ChoiceBox fx:id="VarChoice_Handle" prefWidth="150.0" visible="false">
+                           <VBox.margin>
+                              <Insets left="10.0" right="10.0" />
+                           </VBox.margin>
+                        </ChoiceBox>
                      </children>
                   </VBox>
                   <ImageView fx:id="addBtn_Handle" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" visible="false">

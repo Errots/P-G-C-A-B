@@ -13,11 +13,13 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.When;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -28,6 +30,11 @@ import javafx.scene.shape.CubicCurve;
 public class LinkNodo extends AnchorPane {
 
 @FXML CubicCurve node_link;
+
+private String StartNodeId = "";
+private String EndNodeId = "";
+
+private EventHandler mLinkNodeClickEvent;
 
 private final DoubleProperty mControlOffsetX = new SimpleDoubleProperty();
 private final DoubleProperty mControlOffsetY = new SimpleDoubleProperty();
@@ -96,6 +103,20 @@ private void initialize() {
             mControlOffsetY.multiply(mControlDirectionY2)
         )
     );
+    
+    
+    mLinkNodeClickEvent = new EventHandler <MouseEvent>()
+    {
+        @Override
+        public void handle(MouseEvent event)
+        {
+            ((AnchorPane) node_link.getParent()).getChildren().remove(node_link);
+            event.consume();
+        }
+        
+    };
+    
+    node_link.setOnMouseClicked(mLinkNodeClickEvent);
 }
 
 public void setStart(Point2D startPoint) {
@@ -313,8 +334,18 @@ public void bindEnds (IconDrag source, IconDrag target) {
         target.registerLink (getId());
     }
 }
-	
+
+
+public String GetEndNodeId(){
+    return EndNodeId;
 }
+
+public String GetStartNodeId(){
+    return StartNodeId;
+}
+}
+
+
 
 
 
